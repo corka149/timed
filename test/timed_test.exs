@@ -71,12 +71,30 @@ defmodule TimedTest do
   end
 
   ################### note tests ###################
-  test "set note when arg and available is" do
+  test "set note" do
     expected = "Mising in ERP"
     args = [date: "2019-03-30", time: "07:50~", note: expected]
     entry = %Timed{%Timed{}| args: args}
     %Timed{note: actual} = Timed.set_note(entry)
 
     assert expected, actual
+  end
+
+  ################### break tests ###################
+  test "set break when arg is available" do
+    expected = 45
+    args = [date: "2019-03-30", time: "07:50~", break: expected]
+    entry = %Timed{%Timed{}| args: args}
+    %Timed{break: actual} = Timed.set_break(entry)
+
+    assert expected == actual
+  end
+
+  test "check default value when no break arg is available" do
+    args = [date: "2019-03-30", time: "07:50~"]
+    entry = %Timed{%Timed{}| args: args}
+    %Timed{break: actual} = Timed.set_break(entry)
+
+    assert 0 == actual
   end
 end

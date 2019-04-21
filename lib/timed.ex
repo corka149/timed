@@ -10,7 +10,7 @@ defmodule Timed do
   """
   def set_break(%Timed{args: args} = entry) do
     case Keyword.take(args, [:break]) do
-       [note: minutes]  -> %Timed{entry | break: minutes}
+       [break: minutes] -> %Timed{entry | break: minutes}
         _               -> entry
     end
   end
