@@ -23,6 +23,7 @@ defmodule Timed.Cli do
     %Timed{%Timed{} | args: args}
     |> Timed.set_start
     |> Timed.set_end
+    |> Timed.set_note
   end
 
   @doc """

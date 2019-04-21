@@ -1,9 +1,29 @@
 defmodule Timed do
   @moduledoc """
-
+  Bundles functions around transforming working times.
   """
 
   defstruct start: nil, end: nil, note: "", break: 0, args: [], errors: []
+
+  @doc """
+  Sets the break in minutes provided via args
+  """
+  def set_break(%Timed{args: args} = entry) do
+    case Keyword.take(args, [:break]) do
+       [note: minutes]  -> %Timed{entry | break: minutes}
+        _               -> entry
+    end
+  end
+
+  @doc """
+  Set the note given through the args
+  """
+  def set_note(%Timed{args: args} = entry) do
+    case Keyword.take(args, [:note]) do
+       [note: text] -> %Timed{entry | note: text}
+        _           -> entry
+    end
+  end
 
   @doc """
   Sets the start time and date.

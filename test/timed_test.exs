@@ -4,7 +4,7 @@ defmodule TimedTest do
 
   ################### Start tests ###################
   test "set start with date and 'from' time provided" do
-    args = [date: "2019-03-30", time: "07:50~", interactive: true]
+    args = [date: "2019-03-30", time: "07:50~", note: "Missing in ERP"]
 
     entry = %Timed{%Timed{}| args: args}
     %Timed{start: start_datetime, errors: errors} = Timed.set_start(entry)
@@ -14,7 +14,7 @@ defmodule TimedTest do
   end
 
   test "set start with date and 'from~to' time provided" do
-    args = [date: "2019-03-30", time: "07:50~17:00", interactive: true]
+    args = [date: "2019-03-30", time: "07:50~17:00", note: "Missing in ERP"]
 
     entry = %Timed{%Timed{}| args: args}
     %Timed{start: start_datetime, errors: errors} = Timed.set_start(entry)
@@ -24,7 +24,7 @@ defmodule TimedTest do
   end
 
   test "set start with date and 'to' time provided" do
-    args = [date: "2019-03-30", time: "~17:00", interactive: true]
+    args = [date: "2019-03-30", time: "~17:00", note: "Missing in ERP"]
 
     entry = %Timed{%Timed{}| args: args}
     %Timed{start: start_datetime} = Timed.set_start(entry)
@@ -38,7 +38,7 @@ defmodule TimedTest do
 
   ################### End tests ###################
   test "set end with date and 'to' time provided" do
-    args = [date: "2019-03-30", time: "~16:00", interactive: true]
+    args = [date: "2019-03-30", time: "~16:00", note: "Missing in ERP"]
 
     entry = %Timed{%Timed{}| args: args}
     %Timed{end: end_datetime, errors: errors} = Timed.set_end(entry)
@@ -48,7 +48,7 @@ defmodule TimedTest do
   end
 
   test "set end with date and 'from~to' time provided" do
-    args = [date: "2019-03-30", time: "07:50~17:00", interactive: true]
+    args = [date: "2019-03-30", time: "07:50~17:00", note: "Missing in ERP"]
 
     entry = %Timed{%Timed{}| args: args}
     %Timed{end: end_datetime, errors: errors} = Timed.set_end(entry)
@@ -58,7 +58,7 @@ defmodule TimedTest do
   end
 
   test "set end with date and 'from' time provided" do
-    args = [date: "2019-03-30", time: "07:50~", interactive: true]
+    args = [date: "2019-03-30", time: "07:50~", note: "Missing in ERP"]
 
     entry = %Timed{%Timed{}| args: args}
     %Timed{end: end_datetime} = Timed.set_end(entry)
@@ -68,5 +68,15 @@ defmodule TimedTest do
     assert expected.year == end_datetime.year
     assert expected.month == end_datetime.month
     assert expected.day == end_datetime.day
+  end
+
+  ################### note tests ###################
+  test "set note when arg and available is" do
+    expected = "Mising in ERP"
+    args = [date: "2019-03-30", time: "07:50~", note: expected]
+    entry = %Timed{%Timed{}| args: args}
+    %Timed{note: actual} = Timed.set_note(entry)
+
+    assert expected, actual
   end
 end
