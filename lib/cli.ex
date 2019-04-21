@@ -35,15 +35,17 @@ defmodule Timed.Cli do
 
   def help() do
     ~s"""
+    Manages your working times.
 
     Usage:
       -i, --interactive   Guides through all steps of creating or editing a new entry.
-      -n, --now           Accepts: "start" or "end". Uses current time for start or end of a new entry.
-      -d, --date          Takes the date that should be used. Format: "yyyy-mm-dd" -> E.g. 2019-03-28.
-                          When not provided, it will use the current date.
-      -t, --time          Can take start and/or end. "08:00~17:00", "~16:45", "07:30~".
-      -b, --break         Takes the duration of the break in minutes.
-      -N, --note          Takes a note and add it to an entry.
+      -d, --date          Takes the date that should be used. Format: "yyyy-mm-dd" -> E.g.
+                          2019-03-28. When not provided, it will use the current date.
+      -t, --time          Can take start and/or end. Format "hh:mm" -> E.g. "08:00~17:00",
+                          "~16:45", "07:30~". When no entry exists, it will use the current
+                          time for the missing time.
+      -b, --break         Takes the duration of the break in minutes. Default: 0min
+      -n, --note          Takes a note and add it to an entry.
 
     Data:
       Timed data is stored in "$HOME/.timed.csv". The columns are structured the following way:
@@ -57,7 +59,6 @@ defmodule Timed.Cli do
   def allowed_args do
     {[], []}
     |> interactive_arg
-    |> now_arg
     |> date_arg
     |> time_arg
     |> break_arg
@@ -66,10 +67,6 @@ defmodule Timed.Cli do
 
   defp interactive_arg({aliases, strict}) do
     {aliases ++ [i: :interactive], strict ++ [interactive: :boolean]}
-  end
-
-  defp now_arg({aliases, strict}) do
-    {aliases ++ [n: :now], strict ++ [now: :string]}
   end
 
   defp date_arg({aliases, strict}) do
@@ -85,6 +82,6 @@ defmodule Timed.Cli do
   end
 
   defp note_arg({aliases, strict}) do
-    {aliases ++ [N: :note], strict ++ [note: :string]}
+    {aliases ++ [n: :note], strict ++ [note: :string]}
   end
 end
