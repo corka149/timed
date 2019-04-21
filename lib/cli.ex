@@ -20,10 +20,11 @@ defmodule Timed.Cli do
   end
 
   def process_args(args) do
-    %Timed{%Timed{} | args: args}
-    |> Timed.set_start
-    |> Timed.set_end
-    |> Timed.set_note
+    %Timed{}
+    |> Timed.set_start(args)
+    |> Timed.set_end(args)
+    |> Timed.set_note(args)
+    |> Timed.set_break(args)
   end
 
   @doc """

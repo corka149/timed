@@ -3,12 +3,12 @@ defmodule Timed do
   Bundles functions around transforming working times.
   """
 
-  defstruct start: nil, end: nil, note: "", break: 0, args: [], errors: []
+  defstruct start: nil, end: nil, note: "", break: 0, errors: []
 
   @doc """
   Sets the break in minutes provided via args
   """
-  def set_break(%Timed{args: args} = entry) do
+  def set_break(entry, args) do
     case Keyword.take(args, [:break]) do
        [break: minutes] -> %Timed{entry | break: minutes}
         _               -> entry
@@ -18,7 +18,7 @@ defmodule Timed do
   @doc """
   Set the note given through the args
   """
-  def set_note(%Timed{args: args} = entry) do
+  def set_note(entry, args) do
     case Keyword.take(args, [:note]) do
        [note: text] -> %Timed{entry | note: text}
         _           -> entry
@@ -28,18 +28,18 @@ defmodule Timed do
   @doc """
   Sets the start time and date.
   """
-  def set_start(entry) do
-    set_time(entry, :start)
+  def set_start(entry, args) do
+    set_time(entry, args, :start)
   end
 
   @doc """
   Sets the end time and date.
   """
-  def set_end(entry) do
-    set_time(entry, :end)
+  def set_end(entry, args) do
+    set_time(entry, args, :end)
   end
 
-  def set_time(%Timed{args: args} = entry, time_type) do
+  def set_time(entry, args, time_type) do
     date_time = Keyword.take(args, [:date, :time])
     time = parse_time(date_time)
            |> choose_time(time_type)
