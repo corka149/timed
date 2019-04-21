@@ -8,6 +8,7 @@ defmodule Timed do
   @doc """
   Sets the break in minutes provided via args
   """
+  @spec set_break(any(), keyword()) :: any()
   def set_break(entry, args) do
     case Keyword.take(args, [:break]) do
        [break: minutes] -> %Timed{entry | break: minutes}
@@ -18,6 +19,7 @@ defmodule Timed do
   @doc """
   Set the note given through the args
   """
+  @spec set_note(any(), keyword()) :: any()
   def set_note(entry, args) do
     case Keyword.take(args, [:note]) do
        [note: text] -> %Timed{entry | note: text}
@@ -28,6 +30,7 @@ defmodule Timed do
   @doc """
   Sets the start time and date.
   """
+  @spec set_start(map(), keyword()) :: map()
   def set_start(entry, args) do
     set_time(entry, args, :start)
   end
@@ -35,10 +38,12 @@ defmodule Timed do
   @doc """
   Sets the end time and date.
   """
+  @spec set_end(map(), keyword()) :: map()
   def set_end(entry, args) do
     set_time(entry, args, :end)
   end
 
+  @spec set_time(map(), keyword(), :end | :start) :: map()
   def set_time(entry, args, time_type) do
     date_time = Keyword.take(args, [:date, :time])
     time = parse_time(date_time)

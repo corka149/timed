@@ -8,6 +8,7 @@ defmodule Timed.Cli do
   @doc """
     Entry point of application
   """
+  @spec main([binary()]) :: any()
   def main(args \\ []) do
     {parsed, _, invalid} = parse_args(args)
 
@@ -19,6 +20,7 @@ defmodule Timed.Cli do
     end
   end
 
+  @spec process_args(keyword()) :: any()
   def process_args(args) do
     %Timed{}
     |> Timed.set_start(args)
@@ -30,11 +32,16 @@ defmodule Timed.Cli do
   @doc """
     Parses the Cli args and parse it to a key map.
   """
+  @spec parse_args([binary()]) :: {keyword(), [binary()], [{binary(), nil | binary()}]}
   def parse_args(args) do
     {aliases, strict} = allowed_args()
     OptionParser.parse(args, aliases: aliases, strict: strict)
   end
 
+  @doc """
+  Prints the help how to use timed
+  """
+  @spec help() :: <<_::6296>>
   def help() do
     ~s"""
     Manages your working times.
@@ -58,6 +65,7 @@ defmodule Timed.Cli do
   @doc """
     Defines the list of allowd arguments and their aliases.
   """
+  @spec allowed_args() :: {[{any(), any()}, ...], [{any(), any()}, ...]}
   def allowed_args do
     {[], []}
     |> interactive_arg
