@@ -3,31 +3,30 @@ defmodule Timed do
 
   """
 
-  defstruct start: nil, end: nil, note: "", args: [], errors: []
+  defstruct start: nil, end: nil, note: "", break: 0, args: [], errors: []
 
   @doc """
-  Sets the start of a Timed struct.
+  Sets the start time and date.
   """
-  def set_start(%Timed{args: args, errors: errors} = entry) do
-    date_time = Keyword.take(args, [:date, :time])
-    [start_time, _] = parse_time(date_time)
-
-    case calc_datetime(date_time, start_time) do
-      {:ok, start}  -> %Timed{entry | start: start}
-      {:error, _}   -> %Timed{entry | errors: errors ++ ["Invalid date/time format"]}
-    end
+  def set_start(entry) do
+    set_time(entry, :start)
   end
 
   @doc """
-  Sets the end of a Timed struct.
+  Sets the end time and date.
   """
-  def set_end(%Timed{args: args, errors: errors} = entry) do
-    date_time = Keyword.take(args, [:date, :time])
-    [_, end_time] = parse_time(date_time)
+  def set_end(entry) do
+    set_time(entry, :end)
+  end
 
-    case calc_datetime(date_time, end_time) do
-      {:ok, start}  -> %Timed{entry | end: start}
-      {:error, _}   -> %Timed{entry | errors: errors ++ ["Invalid date/time format"]}
+  def set_time(%Timed{args: args} = entry, time_type) do
+    date_time = Keyword.take(args, [:date, :time])
+    time = parse_time(date_time)
+           |> choose_time(time_type)
+
+    case calc_datetime(date_time, time) do
+      {:ok, datetime}   -> Map.put(entry, time_type, datetime)
+      {:error, reason}  -> Map.update(entry, :errors, [reason], &(&1 ++ [reason]))
     end
   end
 
@@ -70,4 +69,8 @@ defmodule Timed do
       _______________________ -> ["", ""]
     end
   end
+
+  defp choose_time([start_time, _], :start) do start_time end
+
+  defp choose_time([_, end_time], :end) do end_time end
 end
