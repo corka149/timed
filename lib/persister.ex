@@ -3,14 +3,41 @@ defmodule Timed.Persister do
   require Logger
 
   @doc """
-  Checks if $HOME/.timed.csv is available
+  Returns the path to the timed.csv-File.
   """
-  @spec is_csv_available?() :: boolean()
-  def is_csv_available?() do
+  @spec get_db_path() :: {:error, <<_::264>>} | {:ok, binary()}
+  def get_db_path() do
     case System.get_env("HOME") do
-      nil   -> !Logger.error("No HOME environment variable set.")
-      path  -> File.exists?(path <> "/.timed.csv")
+      nil   -> {:error, "No HOME environment variable set."}
+      path  -> {:ok, path <> "/.timed.csv"}
     end
   end
 
+  def read_db({:ok, path}) do
+    case File.read(path) do
+      {:ok, data}       -> {:ok, convert_content(data)}
+      {:error, reason}  -> {:error, reason}
+    end
+  end
+
+  def read_db({:error, reason}) do
+    Logger.error("Couldn't open database. Reason: " <> reason)
+  end
+
+  @doc """
+  Splits the content to a list of row and column.
+  """
+  @spec convert_content(any()) :: [any()]
+  def convert_content(data) do
+    data = String.split(data, "\n")
+    for line <- data, String.contains?(line, ","), do: String.split(line, ",")
+  end
+
+  def convert_to_entries(rows_and_columns) do
+
+  end
+
+  def convert_line(line) do
+
+  end
 end
