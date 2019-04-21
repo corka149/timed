@@ -76,22 +76,22 @@ defmodule Timed.Cli do
   end
 
   defp interactive_arg({aliases, strict}) do
-    {aliases ++ [i: :interactive], strict ++ [interactive: :boolean]}
+    {[{:i, :interactive} | aliases], [{:interactive, :boolean} | strict]}
   end
 
   defp date_arg({aliases, strict}) do
-    {aliases ++ [d: :date], strict ++ [date: :string]}
+    {[{:d, :date} | aliases], [{:date, :string} | strict]}
   end
 
   defp time_arg({aliases, strict}) do
-    {aliases ++ [t: :time], strict ++ [time: :string]}
+    {[{:t, :time} | aliases], [{:time, :string} | strict]}
   end
 
   defp break_arg({aliases, strict}) do
-    {aliases ++ [b: :break], strict ++ [break: :integer]}
+    {[{:b, :break} | aliases], [{:break, :integer} | strict]}
   end
 
   defp note_arg({aliases, strict}) do
-    {aliases ++ [n: :note], strict ++ [note: :string]}
+    {[{:n, :note} | aliases], [{:note, :string} | strict]}
   end
 end

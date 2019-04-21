@@ -51,7 +51,7 @@ defmodule Timed do
 
     case calc_datetime(date_time, time) do
       {:ok, datetime}   -> Map.put(entry, time_type, datetime)
-      {:error, reason}  -> Map.update(entry, :errors, [reason], &(&1 ++ [reason]))
+      {:error, reason}  -> Map.update(entry, :errors, [reason], &([reason | &1]))
     end
   end
 
