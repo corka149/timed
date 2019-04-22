@@ -33,14 +33,13 @@ defmodule Timed.Persister do
     for line <- data, String.contains?(line, ","), do: String.split(line, ",")
   end
 
-  def convert_to_entries(rows_and_columns) do
-    Enum.map(rows_and_columns, &convert_line/1)
+  def convert_rows(splitted_rows) do
+    Enum.filter(splitted_rows, &(length(&1) == 5))
+    |> Enum.map(&convert_line/1)
   end
 
   def convert_line([date, start_time, end_time, break, note]) do
     args = [date: date, time: "#{start_time}~#{end_time}", break: break, note: note]
-
-    %Timed{}
-    Timed.Cli.process_args(args)
+    Timed.new(args)
   end
 end
