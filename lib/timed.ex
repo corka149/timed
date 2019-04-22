@@ -5,7 +5,6 @@ defmodule Timed do
 
   defstruct start: nil, end: nil, note: "", break: 0, errors: []
 
-
   @doc """
   Creates a new Timed entry.
   """
@@ -24,8 +23,8 @@ defmodule Timed do
   @spec set_break(any(), keyword()) :: any()
   def set_break(entry, args) do
     case Keyword.take(args, [:break]) do
-       [break: minutes] -> %Timed{entry | break: minutes}
-        _               -> entry
+       [break: minutes] -> %Timed{entry | break: String.to_integer(minutes)}
+        _______________ -> entry
     end
   end
 
@@ -64,7 +63,7 @@ defmodule Timed do
 
     case calc_datetime(date_time, time) do
       {:ok, datetime}   -> Map.put(entry, time_type, datetime)
-      {:error, reason}  -> Map.update(entry, :errors, [reason], &([reason | &1]))
+      {:error, reason}  -> add_error(entry, reason)
     end
   end
 
@@ -111,4 +110,8 @@ defmodule Timed do
   defp choose_time([start_time, _], :start) do start_time end
 
   defp choose_time([_, end_time], :end) do end_time end
+
+  defp add_error(%Timed{errors: errors} = entry, new_error) do
+    %Timed{entry | errors: [new_error | errors]}
+  end
 end
