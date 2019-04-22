@@ -36,17 +36,17 @@ defmodule Timed.Persister do
   """
   def convert_rows(splitted_rows) do
     Enum.filter(splitted_rows, &(length(&1) == 5))
-    |> Enum.map(&convert_line/1)
+    |> Enum.map(&convert_row/1)
   end
 
-  @doc ~S"""
+  @doc """
   Converts a row of a timed-CSV to a timed struct.
 
 
   ## Examples
 
       iex> row = ["2018-01-19", "07:50", "17:00", "45", ""]
-      iex> Timed.Persister.convert_line(row)
+      iex> Timed.Persister.convert_row(row)
       %Timed{
         break: 45,
         end: ~N[2018-01-19 17:00:00],
@@ -57,12 +57,12 @@ defmodule Timed.Persister do
 
 
   """
-  def convert_line([date, start_time, end_time, break, note]) do
+  def convert_row([date, start_time, end_time, break, note]) do
     args = [date: date, time: "#{start_time}~#{end_time}", break: break, note: note]
     Timed.new(args)
   end
 
-  def convert_line(_) do
+  def convert_row(_) do
     Logger.error("Couldn't convert entry")
     {:error, :wrong_column_amount}
   end

@@ -23,7 +23,7 @@ defmodule TimedPersisterTest do
     expected_entry = %Timed{expected_entry | start: ~N[2018-01-19 07:50:00]}
 
     test_line = ["2018-01-19", "07:50", "17:00", "45", "Do it!"]
-    entry = Timed.Persister.convert_line(test_line)
+    entry = Timed.Persister.convert_row(test_line)
 
     assert expected_entry == entry
   end

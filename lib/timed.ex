@@ -49,6 +49,14 @@ defmodule Timed do
 
   @doc """
   Sets the end time and date.
+
+
+  ## Examples
+
+      iex> row = ["2018-01-19", "07:50", "17:00", "45", ""]
+      iex> entry = Timed.Persister.convert_row(row)
+      iex> Timed.to_str(entry)
+      "2018-01-19,07:50,17:00,45,"
   """
   @spec set_end(map(), keyword()) :: map()
   def set_end(entry, args) do
@@ -65,6 +73,19 @@ defmodule Timed do
       {:ok, datetime}   -> Map.put(entry, time_type, datetime)
       {:error, reason}  -> add_error(entry, reason)
     end
+  end
+
+  @doc """
+  Converts a timed struct to a string
+  """
+  @spec to_str(Timed.t()) :: <<_::32, _::_*8>>
+  def to_str(%Timed{break: break, start: start, end: end_datetime, note: note}) do
+    date = NaiveDateTime.to_date(start)
+           |> Date.to_string
+    start_time = hours_and_minutes(start)
+    end_time = hours_and_minutes(end_datetime)
+
+    "#{date},#{start_time},#{end_time},#{break},#{note}"
   end
 
   defp calc_datetime([date: date], "") do
@@ -113,5 +134,14 @@ defmodule Timed do
 
   defp add_error(%Timed{errors: errors} = entry, new_error) do
     %Timed{entry | errors: [new_error | errors]}
+  end
+
+  defp hours_and_minutes(datetime) do
+    {hrs_min, _} = datetime
+    |> DateTime.to_time
+    |> Time.to_string
+    |> String.split_at(5)
+
+    hrs_min
   end
 end
