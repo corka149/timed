@@ -34,10 +34,13 @@ defmodule Timed.Persister do
   end
 
   def convert_to_entries(rows_and_columns) do
-
+    Enum.map(rows_and_columns, &convert_line/1)
   end
 
-  def convert_line(line) do
+  def convert_line([date, start_time, end_time, break, note]) do
+    args = [date: date, time: "#{start_time}~#{end_time}", break: break, note: note]
 
+    %Timed{}
+    Timed.Cli.process_args(args)
   end
 end

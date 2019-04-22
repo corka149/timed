@@ -5,6 +5,19 @@ defmodule Timed do
 
   defstruct start: nil, end: nil, note: "", break: 0, errors: []
 
+
+  @doc """
+  Creates a new Timed entry.
+  """
+  @spec new(keyword()) :: any()
+  def new(args) do
+    %Timed{}
+    |> Timed.set_start(args)
+    |> Timed.set_end(args)
+    |> Timed.set_note(args)
+    |> Timed.set_break(args)
+  end
+
   @doc """
   Sets the break in minutes provided via args
   """

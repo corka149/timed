@@ -13,20 +13,11 @@ defmodule Timed.Cli do
     {parsed, _, invalid} = parse_args(args)
 
     if (length(invalid) == 0) do
-      IO.inspect process_args(parsed)
+      IO.inspect Timed.new(parsed)
     else
       Logger.error(inspect(invalid))
       IO.puts(help())
     end
-  end
-
-  @spec process_args(keyword()) :: any()
-  def process_args(args) do
-    %Timed{}
-    |> Timed.set_start(args)
-    |> Timed.set_end(args)
-    |> Timed.set_note(args)
-    |> Timed.set_break(args)
   end
 
   @doc """
