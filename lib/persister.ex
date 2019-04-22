@@ -13,15 +13,14 @@ defmodule Timed.Persister do
     end
   end
 
-  def read_db({:ok, path}) do
+  @doc """
+  Reads a timed-CSV which can be find by the given path
+  """
+  def read_db(path) do
     case File.read(path) do
       {:ok, data}       -> {:ok, convert_content(data)}
       {:error, reason}  -> {:error, reason}
     end
-  end
-
-  def read_db({:error, reason}) do
-    Logger.error("Couldn't open database. Reason: " <> reason)
   end
 
   @doc """
@@ -42,7 +41,7 @@ defmodule Timed.Persister do
     Timed.new(args)
   end
 
-  def convert_line(line) do
+  def convert_line(_) do
     Logger.error("Couldn't convert entry")
     {:error, :wrong_column_amount}
   end

@@ -4,10 +4,10 @@ defmodule TimedPersisterTest do
   test "read db" do
     test_path = "test/assets/timed.csv"
 
-    {should_fail, _} = Timed.Persister.read_db({:ok, "no/real/path/timed.csv"})
+    {should_fail, _} = Timed.Persister.read_db("no/real/path/timed.csv")
     assert :error == should_fail
 
-    {:ok, splitted_rows} = Timed.Persister.read_db({:ok, test_path})
+    {:ok, splitted_rows} = Timed.Persister.read_db(test_path)
     assert 2 == length(splitted_rows)
 
     [row_1, row_2] = splitted_rows
