@@ -27,7 +27,6 @@ defmodule Timed.Persister do
   @doc """
   Splits the content to a list of row and column.
   """
-  @spec convert_content(any()) :: [any()]
   def convert_content(data) do
     data = String.split(data, "\n")
     for line <- data, String.contains?(line, ","), do: String.split(line, ",")
@@ -41,5 +40,10 @@ defmodule Timed.Persister do
   def convert_line([date, start_time, end_time, break, note]) do
     args = [date: date, time: "#{start_time}~#{end_time}", break: break, note: note]
     Timed.new(args)
+  end
+
+  def convert_line(line) do
+    Logger.error("Couldn't convert entry")
+    {:error, :wrong_column_amount}
   end
 end
