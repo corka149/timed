@@ -1,5 +1,6 @@
 defmodule TimedPersisterTest do
   use ExUnit.Case
+  doctest Timed.Persister
 
   test "read db" do
     test_path = "test/assets/timed.csv"
