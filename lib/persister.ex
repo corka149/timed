@@ -23,6 +23,11 @@ defmodule Timed.Persister do
     end
   end
 
+  def save_db(entries, path) do
+    content = Enum.reduce(entries, "", &("#{&1}#{Timed.to_str(&2)}\n"))
+    File.write(path, content)
+  end
+
   @doc """
   Splits the content to a list of row and column.
   """
