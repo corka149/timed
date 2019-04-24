@@ -12,8 +12,9 @@ defmodule Timed.Cli do
   def main(args \\ []) do
     {parsed, _, invalid} = parse_args(args)
 
-    if (length(invalid) == 0) do
-      IO.inspect Timed.new(parsed)
+    if (length(invalid) == 0 and length(parsed) > 0) do
+      Timed.new(parsed)
+      |> Timed.Persister.update_db()
     else
       Logger.error(inspect(invalid))
       IO.puts(help())
