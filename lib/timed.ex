@@ -49,14 +49,6 @@ defmodule Timed do
 
   @doc """
   Sets the end time and date.
-
-
-  ## Examples
-
-      iex> row = ["2018-01-19", "07:50", "17:00", "45", ""]
-      iex> entry = Timed.Persister.convert_row(row)
-      iex> Timed.to_str(entry)
-      "2018-01-19,07:50,17:00,45,"
   """
   @spec set_end(map(), keyword()) :: map()
   def set_end(entry, args) do
@@ -77,6 +69,14 @@ defmodule Timed do
 
   @doc """
   Converts a timed struct to a string
+
+
+  ## Examples
+
+      iex> row = ["2018-01-19", "07:50", "17:00", "45", ""]
+      iex> entry = Timed.Persister.convert_row(row)
+      iex> Timed.to_str(entry)
+      "2018-01-19,07:50,17:00,45,"
   """
   @spec to_str(Timed.t()) :: <<_::32, _::_*8>>
   def to_str(%Timed{break: break, start: start, end: end_datetime, note: note}) do
