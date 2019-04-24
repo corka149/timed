@@ -10,10 +10,6 @@ defmodule TimedPersisterTest do
 
     {:ok, splitted_rows} = Timed.Persister.read_db(test_path)
     assert 2 == length(splitted_rows)
-
-    [row_1, row_2] = splitted_rows
-    assert 5 == length(row_1)
-    assert 5 == length(row_2)
   end
 
   test "convert line" do
@@ -28,4 +24,24 @@ defmodule TimedPersisterTest do
     assert expected_entry == entry
   end
 
+  test "convert content" do
+    expected_entry1 = %Timed{%Timed{} | break: 45}
+    expected_entry1 = %Timed{expected_entry1 | note: "Do it!"}
+    expected_entry1 = %Timed{expected_entry1 | end: ~N[2018-01-19 17:00:00]}
+    expected_entry1 = %Timed{expected_entry1 | start: ~N[2018-01-19 08:50:00]}
+
+    expected_entry2 = %Timed{%Timed{} | break: 45}
+    expected_entry2 = %Timed{expected_entry2 | note: "Yeah maybe"}
+    expected_entry2 = %Timed{expected_entry2 | end: ~N[2018-01-20 16:00:00]}
+    expected_entry2 = %Timed{expected_entry2 | start: ~N[2018-01-20 07:50:00]}
+
+    content = """
+    2018-01-19,08:50,17:00,45,Do it!
+    2018-01-20,07:50,16:00,45,Yeah maybe
+    """
+    [first, second] = Timed.Persister.convert_content(content)
+
+    assert first == expected_entry1 or first == expected_entry2
+    assert second == expected_entry1 or second == expected_entry2
+  end
 end
