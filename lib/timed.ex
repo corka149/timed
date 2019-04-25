@@ -23,7 +23,7 @@ defmodule Timed do
   @spec set_break(any(), keyword()) :: any()
   def set_break(entry, args) do
     case Keyword.take(args, [:break]) do
-       [break: minutes] -> %Timed{entry | break: String.to_integer(minutes)}
+       [break: minutes] -> %Timed{entry | break: minutes}
         _______________ -> entry
     end
   end
