@@ -71,17 +71,32 @@ defmodule Timed.Persister do
   end
 
   def update_existing_entry(old, new, all_existing_entries) do
-    merged = Map.merge(old, new, &keep_or_update/3)
-    [merged | Enum.filter(all_existing_entries, fn other -> compare_timed_dates(other, merged) end)]
+    merged = Map.merge(old, new, &update_only_different/3)
+    [merged | Enum.filter(all_existing_entries, fn other -> !compare_timed_dates(other, merged) end)]
   end
 
-  def keep_or_update(key, v1, v2) do
-    IO.puts(key <> " - (l)eft or (r)ight? #{v1} - #{v2}")
-    answer = IO.read(1)
-    if answer == "l" or answer == "r" do
-      if answer == "l", do: v1, else: v2
+  @doc """
+  Checks if the provided values are equal and forces to select one of them when they are not equal.
+  Else it will return one of the equal values.
+  """
+  def update_only_different(key, val1, val2) do
+    if val1 == val2 do
+      val1
     else
-      keep_or_update(key, v1, v2)
+      keep_or_update(key, val1, val2)
+    end
+  end
+
+  def keep_or_update(:__struct__, _, _) do "Elixir.Timed" end
+
+  def keep_or_update(key, left, right) do
+    IO.puts("#{key} - (l)eft or (r)ight? '#{left}' - '#{right}'")
+    answer =  IO.read(2)
+              |> String.first
+    if answer == "l" or answer == "r" do
+      if answer == "l", do: left, else: right
+    else
+      keep_or_update(key, left, right)
     end
   end
 
@@ -122,7 +137,7 @@ defmodule Timed.Persister do
 
   """
   def convert_row([date, start_time, end_time, break, note]) do
-    args = [date: date, time: "#{start_time}~#{end_time}", break: break, note: note]
+    args = [date: date, time: "#{start_time}~#{end_time}", break: String.to_integer(break), note: note]
     Timed.new(args)
   end
 
