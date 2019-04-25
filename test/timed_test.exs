@@ -82,12 +82,12 @@ defmodule TimedTest do
 
   ################### break tests ###################
   test "set break when arg is available" do
-    expected = "45"
+    expected = 45
     args = [date: "2019-03-30", time: "07:50~", break: expected]
     entry = %Timed{}
     %Timed{break: actual} = Timed.set_break(entry, args)
 
-    assert String.to_integer(expected) == actual
+    assert expected == actual
   end
 
   test "check default value when no break arg is available" do
