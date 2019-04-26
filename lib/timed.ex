@@ -88,35 +88,35 @@ defmodule Timed do
     "#{date},#{start_time},#{end_time},#{break},#{note}"
   end
 
-  defp calc_datetime([date: date], "") do
-    start_time = Time.utc_now()
+  def calc_datetime([date: date], "") do
+    time = Time.utc_now()
     case Date.from_iso8601(date) do
-      {:ok, start_date} -> NaiveDateTime.new(start_date, start_time)
+      {:ok, date} -> NaiveDateTime.new(date, time)
       {result, reason}  -> {result, reason}
     end
   end
 
-  defp calc_datetime([date: date, time: _], "") do
-    start_time = Time.utc_now()
+  def calc_datetime([date: date, time: _], "") do
+    time = Time.utc_now()
     case Date.from_iso8601(date) do
-      {:ok, start_date} -> NaiveDateTime.new(start_date, start_time)
+      {:ok, date} -> NaiveDateTime.new(date, time)
       {result, reason}  -> {result, reason}
     end
   end
 
-  defp calc_datetime([date: date, time: _], start_time) do
-    NaiveDateTime.from_iso8601("#{date} #{start_time}:00")
+  def calc_datetime([date: date, time: _], time) do
+    NaiveDateTime.from_iso8601("#{date} #{time}:00")
   end
 
-  defp calc_datetime([time: _], start_time) do
-    start_date = Date.utc_today()
-    case Time.from_iso8601(start_time) do
-      {:ok, start_time} -> NaiveDateTime.new(start_date, start_time)
+  def calc_datetime([time: _], time) do
+    date = Date.utc_today()
+    case Time.from_iso8601(time <> ":00") do
+      {:ok, time} -> NaiveDateTime.new(date, time)
       {result, reason}  -> {result, reason}
     end
   end
 
-  defp calc_datetime(_, _) do
+  def calc_datetime(_, _) do
     {:error, "Unkown combination provided"}
   end
 
