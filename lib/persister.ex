@@ -89,6 +89,9 @@ defmodule Timed.Persister do
 
   def keep_or_update(:__struct__, _, _) do "Elixir.Timed" end
 
+  # Old errors never exists
+  def keep_or_update(:errors, _, new) do new end
+
   def keep_or_update(key, left, right) do
     IO.puts("#{key} - (l)eft or (r)ight? '#{left}' - '#{right}'")
     answer =  IO.read(2)
@@ -146,7 +149,11 @@ defmodule Timed.Persister do
     {:error, :wrong_column_amount}
   end
 
-  defp compare_timed_dates(entry1, entry2) do
-    NaiveDateTime.to_date(entry1.start) == NaiveDateTime.to_date(entry2.start)
+  def compare_timed_dates(_, %Timed{start: nil}) do false end
+
+  def compare_timed_dates(%Timed{start: nil}, _) do false end
+
+  def compare_timed_dates(%Timed{start: start1}, %Timed{start: start2}) do
+    NaiveDateTime.to_date(start1) == NaiveDateTime.to_date(start2)
   end
 end
