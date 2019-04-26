@@ -44,4 +44,20 @@ defmodule TimedPersisterTest do
     assert first == expected_entry1 or first == expected_entry2
     assert second == expected_entry1 or second == expected_entry2
   end
+
+  test "compare dates" do
+    one_day = 60 * 60 * 24
+
+    d1 = NaiveDateTime.utc_now()
+    d2 = NaiveDateTime.add(d1, one_day, :second)
+
+    t1 = %Timed{%Timed{} | start: d1}
+    t2 = %Timed{%Timed{} | start: d2}
+    t_nil = %Timed{}
+
+    assert !Timed.Persister.compare_timed_dates(t_nil, t1), "Nil and struct are always different"
+    assert !Timed.Persister.compare_timed_dates(t1, t_nil), "Nil and struct are always different"
+    assert Timed.Persister.compare_timed_dates(t1, t1), "Used same struct, so must be same"
+    assert !Timed.Persister.compare_timed_dates(t1, t2), "Different dates cannot be equal"
+  end
 end

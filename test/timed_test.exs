@@ -97,4 +97,32 @@ defmodule TimedTest do
 
     assert 0 == actual
   end
+
+  ################### calc date and time tests ###################
+  test "calc date and time from args - date set" do
+    args = [date: "2018-12-01"]
+    now = Time.utc_now()
+    {:ok, datetime} = Timed.calc_datetime(args, "")
+    assert ~D(2018-12-01) == NaiveDateTime.to_date(datetime)
+    assert now.hour == datetime.hour
+  end
+
+  test "calc date and time from args - time set" do
+    args = [time: "07:50~"]
+    today = Date.utc_today()
+    {:ok, datetime} = Timed.calc_datetime(args, "07:50")
+    assert today == NaiveDateTime.to_date(datetime)
+    assert ~T(07:50:00) == NaiveDateTime.to_time(datetime)
+  end
+
+  test "calc date and time from args - date and time set" do
+    args = [date: "2018-11-11", time: "07:50~"]
+    {:ok, datetime} = Timed.calc_datetime(args, "07:50")
+    assert ~D(2018-11-11) == NaiveDateTime.to_date(datetime)
+    assert ~T(07:50:00) == NaiveDateTime.to_time(datetime)
+  end
+
+  test "calc date und time - wrong combination" do
+    assert {:error, "Unkown combination provided"} == Timed.calc_datetime([], "07:50")
+  end
 end
