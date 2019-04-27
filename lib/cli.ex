@@ -33,7 +33,7 @@ defmodule Timed.Cli do
   @doc """
   Prints the help how to use timed
   """
-  @spec help() :: <<_::6296>>
+  @spec help() :: <<_::5632>>
   def help() do
     ~s"""
     Manages your working times.
