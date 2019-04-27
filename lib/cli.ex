@@ -10,13 +10,13 @@ defmodule Timed.Cli do
   """
   @spec main([binary()]) :: any()
   def main(args \\ []) do
-    {parsed, _, invalid} = parse_args(args)
+    {parsed, _, _} = args = parse_args(args)
 
-    if (length(invalid) == 0 and length(parsed) > 0) do
+    if args_valid?(args) do
       Timed.new(parsed)
       |> Timed.Persister.update_db()
     else
-      Logger.error(inspect(invalid))
+      Logger.error "One or more arguments are invalid. Please check usage."
       IO.puts(help())
     end
   end
@@ -63,6 +63,43 @@ defmodule Timed.Cli do
     |> time_arg
     |> break_arg
     |> note_arg
+  end
+
+  def args_valid?({_, remaining, invalid}) when length(invalid) > 0 or length(remaining) > 0 do false end
+
+  def args_valid?({parsed, _, _}) do
+    valid_time =  Keyword.take(parsed, [:time])
+                  |> is_valid_time?
+    valid_date =  Keyword.take(parsed, [:date])
+                  |> is_valid_date?
+
+    valid_time and valid_date
+  end
+
+  # It is ok when no date argument is provided
+  defp is_valid_date?([]) do true end
+
+  defp is_valid_date?([date: date]) do
+    {result, _} = Date.from_iso8601(date)
+    :ok == result
+  end
+
+  defp is_valid_date?(_) do
+    Logger.error("Date couldn't be validated.")
+    false
+  end
+
+  # It is ok when no time argument is provided
+  defp is_valid_time?([]) do true end
+
+  defp is_valid_time?([time: time]) do
+    {result, _} = Time.from_iso8601(time)
+    :ok == result
+  end
+
+  defp is_valid_time?(_) do
+    Logger.error("Time couldn't be validated.")
+    false
   end
 
   defp date_arg({aliases, strict}) do
