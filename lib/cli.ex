@@ -39,7 +39,6 @@ defmodule Timed.Cli do
     Manages your working times.
 
     Usage:
-      -i, --interactive   Guides through all steps of creating or editing a new entry.
       -d, --date          Takes the date that should be used. Format: "yyyy-mm-dd" -> E.g.
                           2019-03-28. When not provided, it will use the current date.
       -t, --time          Can take start and/or end. Format "hh:mm" -> E.g. "08:00~17:00",
@@ -60,15 +59,10 @@ defmodule Timed.Cli do
   @spec allowed_args() :: {[{any(), any()}, ...], [{any(), any()}, ...]}
   def allowed_args do
     {[], []}
-    |> interactive_arg
     |> date_arg
     |> time_arg
     |> break_arg
     |> note_arg
-  end
-
-  defp interactive_arg({aliases, strict}) do
-    {[{:i, :interactive} | aliases], [{:interactive, :boolean} | strict]}
   end
 
   defp date_arg({aliases, strict}) do

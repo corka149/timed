@@ -3,7 +3,6 @@ Manages your working times.
 
 ## Usage
 ```
--i, --interactive   Guides through all steps of creating or editing a new entry.
 -d, --date          Takes the date that should be used. Format: "yyyy-mm-dd" -> E.g.
                     2019-03-28. When not provided, it will use the current date.
 -t, --time          Can take start and/or end. Format "hh:mm" -> E.g. "08:00~17:00",
