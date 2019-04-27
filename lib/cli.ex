@@ -65,6 +65,20 @@ defmodule Timed.Cli do
     |> note_arg
   end
 
+  @doc """
+  Checks if the parsed arguments are valid
+  The strucure of the tuple looks like this: {parsed, remaining, invalid}
+
+  ## Examples
+
+      iex> parsed_args = {[date: "2018-11-11"], [], []}
+      iex> Timed.Cli.args_valid? parsed_args
+      true
+      iex> invalid_parsed_args = {[time: "25:10"], [], []}
+      iex> Timed.Cli.args_valid? invalid_parsed_args
+      false
+  """
+  @spec args_valid?({any(), any(), any()}) :: boolean()
   def args_valid?({_, remaining, invalid}) when length(invalid) > 0 or length(remaining) > 0 do false end
 
   def args_valid?({parsed, _, _}) do
@@ -93,7 +107,7 @@ defmodule Timed.Cli do
   defp is_valid_time?([]) do true end
 
   defp is_valid_time?([time: time]) do
-    {result, _} = Time.from_iso8601(time)
+    {result, _} = Time.from_iso8601("#{time}:00")
     :ok == result
   end
 
