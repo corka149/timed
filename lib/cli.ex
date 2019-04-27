@@ -33,10 +33,11 @@ defmodule Timed.Cli do
   @doc """
   Prints the help how to use timed
   """
-  @spec help() :: <<_::5632>>
   def help() do
     ~s"""
-    Manages your working times.
+
+    Description:
+      Manages your working times.
 
     Usage:
       -d, --date          Takes the date that should be used. Format: "yyyy-mm-dd" -> E.g.
