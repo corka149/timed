@@ -120,7 +120,7 @@ defmodule Timed do
     {:error, "Unkown combination provided"}
   end
 
-  defp parse_time(args) do
+  def parse_time(args) do
     time = Keyword.get(args, :time, "~")
     case String.split(time, "~") do
       dt when length(dt) == 2 -> dt

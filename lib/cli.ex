@@ -72,10 +72,13 @@ defmodule Timed.Cli do
 
   ## Examples
 
-      iex> parsed_args = {[date: "2018-11-11"], [], []}
+      iex> parsed_args = {[date: "2018-11-11", time: "~17:00"], [], []}
       iex> Timed.Cli.args_valid? parsed_args
       true
-      iex> invalid_parsed_args = {[time: "25:10"], [], []}
+      iex> parsed_args = {[time: "07:00~"], [], []}
+      iex> Timed.Cli.args_valid? parsed_args
+      true
+      iex> invalid_parsed_args = {[time: "28:00~29:10"], [], []}
       iex> Timed.Cli.args_valid? invalid_parsed_args
       false
   """
@@ -107,14 +110,11 @@ defmodule Timed.Cli do
   # It is ok when no time argument is provided
   defp is_valid_time?([]) do true end
 
-  defp is_valid_time?([time: time]) do
-    {result, _} = Time.from_iso8601("#{time}:00")
-    :ok == result
-  end
-
-  defp is_valid_time?(_) do
-    Logger.error("Time couldn't be validated.")
-    false
+  defp is_valid_time?(args) do
+    [start_t, end_t] = Timed.parse_time(args)
+    {result_start, _} = Time.from_iso8601("#{start_t}:00")
+    {result_end, _} = Time.from_iso8601("#{end_t}:00")
+    (:ok == result_start or start_t == "") and (:ok == result_end or end_t == "")
   end
 
   defp date_arg({aliases, strict}) do
