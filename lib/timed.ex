@@ -108,6 +108,10 @@ defmodule Timed do
     NaiveDateTime.from_iso8601("#{date} #{time}:00")
   end
 
+  def calc_datetime([time: _], "") do
+    {:ok, NaiveDateTime.utc_now()}
+  end
+
   def calc_datetime([time: _], time) do
     date = Date.utc_today()
     case Time.from_iso8601(time <> ":00") do
