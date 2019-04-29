@@ -4,7 +4,7 @@ defmodule Timed.MixProject do
   def project do
     [
       app: :timed,
-      version: "0.7.0",
+      version: "1.0.1",
       elixir: "~> 1.8",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
