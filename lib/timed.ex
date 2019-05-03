@@ -121,7 +121,7 @@ defmodule Timed do
   end
 
   def calc_datetime(_, _) do
-    {:error, "Unkown combination provided"}
+    {:ok, NaiveDateTime.utc_now()}
   end
 
   def parse_time(args) do
