@@ -121,8 +121,4 @@ defmodule TimedTest do
     assert ~D(2018-11-11) == NaiveDateTime.to_date(datetime)
     assert ~T(07:50:00) == NaiveDateTime.to_time(datetime)
   end
-
-  test "calc date und time - wrong combination" do
-    assert {:error, "Unkown combination provided"} == Timed.calc_datetime([], "07:50")
-  end
 end
