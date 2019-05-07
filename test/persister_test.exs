@@ -1,4 +1,4 @@
-defmodule TimedPersisterTest do
+defmodule Timed.PersisterTest do
   use ExUnit.Case
   doctest Timed.Persister
 

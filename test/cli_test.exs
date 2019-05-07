@@ -1,4 +1,4 @@
-defmodule CliTest do
+defmodule Timed.CliTest do
   use ExUnit.Case
   doctest Timed.Cli
 
