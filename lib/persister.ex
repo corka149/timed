@@ -2,6 +2,8 @@ defmodule Timed.Persister do
 
   require Logger
 
+  alias Timed.Reporter
+
   @doc """
   Returns the path to the timed.csv-File.
   """
@@ -22,6 +24,7 @@ defmodule Timed.Persister do
     case get_db_path() do
       {:ok, path} ->  read_db(path)
                       |> update_entries(new_entry)
+                      |> Reporter.log_statistics()
                       |> save_db(path)
       {:error, message} -> Logger.error message
     end

@@ -2,22 +2,41 @@ defmodule Timed.Reporter do
 
   require Logger
 
-  def log_hours_today([]) do nil end
+  def log_statistics(timed_list) do
+    timed_list
+    |> log_hours_today()
+    |> log_overtime()
+  end
 
-  def log_hours_today([head | tail]) do
-    if NaiveDateTime.to_date(head) == Date.utc_today() do
+  @doc """
+  Logs to stdout the worked hours for today.
+  """
+  def log_hours_today(timed_list) do
+    log_hours(timed_list)
+    timed_list
+  end
+
+  defp log_hours([]) do nil end
+
+  defp log_hours([head | tail]) do
+    %{start: start} = head
+    if NaiveDateTime.to_date(start) == Date.utc_today() do
       worked_hours =  calc_worked_hours(head)
-      Logger.info("Hours today: #{worked_hours}")
+      Logger.info("Hours today: #{worked_hours} hrs")
     else
       log_hours_today(tail)
     end
   end
 
+  @doc """
+  Logs to stdout the difference between expected sum of hours and sum of actual hours
+  """
   def log_overtime(timed_list) do
     expected_worked_hours = 8 * length(timed_list)
-    actual_worked_hours = Enum.reduce(timed_list, fn timed, acc -> calc_worked_hours(timed) + acc end)
-    overtime = expected_worked_hours - actual_worked_hours
-    Logger.info("Overtime: #{overtime}")
+    actual_worked_hours = Enum.reduce(timed_list, 0, fn timed, acc -> calc_worked_hours(timed) + acc end)
+    overtime = actual_worked_hours - expected_worked_hours
+    Logger.info("Overtime: #{overtime} hrs")
+    timed_list
   end
 
   @doc """
