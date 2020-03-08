@@ -106,6 +106,10 @@ defmodule Timed.Cli do
 
   defp is_valid_date?(date: date) do
     {result, _} = Date.from_iso8601(date)
+
+    unless :ok == result do
+      Log.error("Invalid date format.")
+    end
     :ok == result
   end
 
@@ -121,9 +125,16 @@ defmodule Timed.Cli do
 
   defp is_valid_time?(args) do
     [start_t, end_t] = Timed.parse_time(args)
-    {result_start, _} = Time.from_iso8601("#{start_t}:00")
-    {result_end, _} = Time.from_iso8601("#{end_t}:00")
-    (:ok == result_start or start_t == "") and (:ok == result_end or end_t == "")
+
+    check = fn time, type ->
+      {result, _} = Time.from_iso8601("#{time}:00")
+      unless :ok == result do
+        Log.error("Invalid time format for #{type} time.")
+      end
+      :ok == result
+    end
+
+    (check.(start_t, "starting") or start_t == "") and (check.(end_t, "ending") or end_t == "")
   end
 
   defp date_arg({aliases, strict}) do
