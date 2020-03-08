@@ -15,3 +15,15 @@ Manages your working times.
 ## Data
 Timed data is stored in "$HOME/.timed.csv". The columns are structured the following way:
 date, start, end, breaktime, note
+
+## Build
+
+Run either
+```bash
+mix escript.build
+```
+
+or
+```bash
+MIX_ENV=prod mix escript.build
+```
