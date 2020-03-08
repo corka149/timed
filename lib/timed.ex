@@ -68,7 +68,7 @@ defmodule Timed do
   end
 
   @doc """
-  Converts a timed struct to a string
+  Converts a timed struct to a string.
 
 
   ## Examples
@@ -88,6 +88,10 @@ defmodule Timed do
     "#{date},#{start_time},#{end_time},#{break},#{note}"
   end
 
+
+  @spec calc_datetime(%{date: any, time: any}) ::
+          {:error, :incompatible_calendars | :invalid_date | :invalid_format | :invalid_time}
+          | {:ok, NaiveDateTime.t()}
   def calc_datetime(date_timerange)
 
   def calc_datetime(%{date: nil, time: nil}) do
@@ -113,6 +117,7 @@ defmodule Timed do
   def calc_datetime(%{date: date, time: time}) do
     NaiveDateTime.from_iso8601("#{date} #{time}:00")
   end
+
 
   @spec parse_time(keyword()) :: [binary()]
   def parse_time(args) do
@@ -145,7 +150,7 @@ defmodule Timed do
 
   defp hours_and_minutes(datetime) do
     {hrs_min, _} = datetime
-    |> DateTime.to_time
+    |> NaiveDateTime.to_time
     |> Time.to_string
     |> String.split_at(5)
 

@@ -15,21 +15,3 @@ Manages your working times.
 ## Data
 Timed data is stored in "$HOME/.timed.csv". The columns are structured the following way:
 date, start, end, breaktime, note
-
-## Installation
-
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `timed` to your list of dependencies in `mix.exs`:
-
-```elixir
-def deps do
-  [
-    {:timed, "~> 0.1.0"}
-  ]
-end
-```
-
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/timed](https://hexdocs.pm/timed).
-

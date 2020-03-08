@@ -15,7 +15,7 @@ defmodule Timed.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger]
+      extra_applications: []
     ]
   end
 
@@ -24,6 +24,7 @@ defmodule Timed.MixProject do
     [
       {:ex_doc, "~> 0.20.2"},
       {:earmark, "~> 1.3"},
+      {:bunt, "~> 0.2.0"}
     ]
   end
 

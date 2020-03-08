@@ -1,5 +1,6 @@
 defmodule Timed.Cli do
-  require Logger
+
+  alias Timed.Cli.Log
 
   @moduledoc """
     Is the user interface which can be controlled via the command line interface.
@@ -16,8 +17,8 @@ defmodule Timed.Cli do
       Timed.new(parsed)
       |> Timed.Persister.update_db()
     else
-      Logger.error "One or more arguments are invalid. Please check usage."
-      IO.puts(help())
+      Log.warn("One or more arguments are invalid. Please check usage.")
+      Log.info(help())
     end
   end
 
@@ -103,7 +104,7 @@ defmodule Timed.Cli do
   end
 
   defp is_valid_date?(_) do
-    Logger.error("Date couldn't be validated.")
+    Log.warn("Date couldn't be validated.")
     false
   end
 

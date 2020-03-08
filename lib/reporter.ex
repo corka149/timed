@@ -1,6 +1,6 @@
 defmodule Timed.Reporter do
 
-  require Logger
+  alias Timed.Cli.Log
 
   @doc """
   Checks a list of timed structures and search for the entry which of the current day.
@@ -68,14 +68,14 @@ defmodule Timed.Reporter do
   # Wrapper for piping
   def log_total_overtime(timed_list) do
     overtime = calc_total_overtime(timed_list)
-    Logger.info("Overtime: #{overtime} hrs")
+    Log.info("Overtime: #{overtime} hrs")
     timed_list
   end
 
   # Wrapper for piping
   defp log_hours_today(timed_list) do
     worked_hours = get_hours_today(timed_list)
-    Logger.info("Hours today: #{worked_hours} hrs")
+    Log.info("Hours today: #{worked_hours} hrs")
     timed_list
   end
 end

@@ -1,6 +1,6 @@
 defmodule Timed.Persister do
 
-  require Logger
+  alias Timed.Cli.Log
 
   alias Timed.Reporter
 
@@ -26,7 +26,7 @@ defmodule Timed.Persister do
                       |> update_entries(new_entry)
                       |> Reporter.log_statistics()
                       |> save_db(path)
-      {:error, message} -> Logger.error message
+      {:error, message} -> Log.error(message)
     end
   end
 
@@ -34,14 +34,14 @@ defmodule Timed.Persister do
   Creates the inital database if path is available.
   """
   def create_db({:ok, path}) do
-    if !File.exists?(path) do
-      Logger.info "Initial creation of database."
+    unless File.exists?(path) do
+      Log.info("Initial creation of database.")
       File.touch(path)
     end
   end
 
   def create_db({:error, _}) do
-    Logger.error "Couldn't create inital the database."
+    Log.error("Couldn't create inital the database.")
   end
 
   @doc """
@@ -70,7 +70,7 @@ defmodule Timed.Persister do
   end
 
   def update_entries({:error, reason}, _) do
-    Logger.error "Couldn't perform an update. Reason: #{reason}"
+    Log.error("Couldn't perform an update. Reason: #{reason}")
   end
 
   def update_existing_entry(old, new, all_existing_entries) do
@@ -96,7 +96,7 @@ defmodule Timed.Persister do
   def keep_or_update(:errors, _, new) do new end
 
   def keep_or_update(key, left, right) do
-    IO.puts("#{key} - (l)eft or (r)ight? '#{left}' - '#{right}'")
+    Log.info("#{key} - (l)eft or (r)ight? '#{left}' - '#{right}'")
     answer =  IO.read(2)
               |> String.first
     if answer == "l" or answer == "r" do
@@ -148,7 +148,7 @@ defmodule Timed.Persister do
   end
 
   def convert_row(_) do
-    Logger.error("Couldn't convert entry")
+    Log.warn("Couldn't convert entry")
     {:error, :wrong_column_amount}
   end
 
