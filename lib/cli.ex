@@ -1,5 +1,4 @@
 defmodule Timed.Cli do
-
   alias Timed.Cli.Log
 
   @moduledoc """
@@ -84,21 +83,28 @@ defmodule Timed.Cli do
       false
   """
   @spec args_valid?({any(), any(), any()}) :: boolean()
-  def args_valid?({_, remaining, invalid}) when length(invalid) > 0 or length(remaining) > 0 do false end
+  def args_valid?({_, remaining, invalid}) when length(invalid) > 0 or length(remaining) > 0 do
+    false
+  end
 
   def args_valid?({parsed, _, _}) do
-    valid_time =  Keyword.take(parsed, [:time])
-                  |> is_valid_time?
-    valid_date =  Keyword.take(parsed, [:date])
-                  |> is_valid_date?
+    valid_time =
+      Keyword.take(parsed, [:time])
+      |> is_valid_time?
+
+    valid_date =
+      Keyword.take(parsed, [:date])
+      |> is_valid_date?
 
     valid_time and valid_date
   end
 
   # It is ok when no date argument is provided
-  defp is_valid_date?([]) do true end
+  defp is_valid_date?([]) do
+    true
+  end
 
-  defp is_valid_date?([date: date]) do
+  defp is_valid_date?(date: date) do
     {result, _} = Date.from_iso8601(date)
     :ok == result
   end
@@ -109,7 +115,9 @@ defmodule Timed.Cli do
   end
 
   # It is ok when no time argument is provided
-  defp is_valid_time?([]) do true end
+  defp is_valid_time?([]) do
+    true
+  end
 
   defp is_valid_time?(args) do
     [start_t, end_t] = Timed.parse_time(args)

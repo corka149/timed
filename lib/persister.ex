@@ -1,5 +1,4 @@
 defmodule Timed.Persister do
-
   alias Timed.Cli.Log
 
   alias Timed.Reporter
@@ -10,8 +9,8 @@ defmodule Timed.Persister do
   @spec get_db_path() :: {:error, <<_::264>>} | {:ok, binary()}
   def get_db_path() do
     case System.get_env("HOME") do
-      nil   -> {:error, "No HOME environment variable set."}
-      path  -> {:ok, path <> "/.timed.csv"}
+      nil -> {:error, "No HOME environment variable set."}
+      path -> {:ok, path <> "/.timed.csv"}
     end
   end
 
@@ -21,12 +20,16 @@ defmodule Timed.Persister do
   """
   def update_db(new_entry) do
     create_db(get_db_path())
+
     case get_db_path() do
-      {:ok, path} ->  read_db(path)
-                      |> update_entries(new_entry)
-                      |> Reporter.log_statistics()
-                      |> save_db(path)
-      {:error, message} -> Log.error(message)
+      {:ok, path} ->
+        read_db(path)
+        |> update_entries(new_entry)
+        |> Reporter.log_statistics()
+        |> save_db(path)
+
+      {:error, message} ->
+        Log.error(message)
     end
   end
 
@@ -49,8 +52,8 @@ defmodule Timed.Persister do
   """
   def read_db(path) do
     case File.read(path) do
-      {:ok, data}       -> {:ok, convert_content(data)}
-      {:error, reason}  -> {:error, reason}
+      {:ok, data} -> {:ok, convert_content(data)}
+      {:error, reason} -> {:error, reason}
     end
   end
 
@@ -58,14 +61,14 @@ defmodule Timed.Persister do
   Saves back all entries to the database.
   """
   def save_db(entries, path) do
-    content = Enum.reduce(entries, "", &("#{&2}#{Timed.to_str(&1)}\n"))
+    content = Enum.reduce(entries, "", &"#{&2}#{Timed.to_str(&1)}\n")
     File.write(path, content)
   end
 
   def update_entries({:ok, entries}, new_entry) do
     case Enum.find(entries, fn other -> compare_timed_dates(other, new_entry) end) do
-      nil             -> [new_entry | entries]
-      existing_entry  -> update_existing_entry(existing_entry, new_entry, entries)
+      nil -> [new_entry | entries]
+      existing_entry -> update_existing_entry(existing_entry, new_entry, entries)
     end
   end
 
@@ -75,7 +78,11 @@ defmodule Timed.Persister do
 
   def update_existing_entry(old, new, all_existing_entries) do
     merged = Map.merge(old, new, &update_only_different/3)
-    [merged | Enum.filter(all_existing_entries, fn other -> !compare_timed_dates(other, merged) end)]
+
+    [
+      merged
+      | Enum.filter(all_existing_entries, fn other -> !compare_timed_dates(other, merged) end)
+    ]
   end
 
   @doc """
@@ -90,15 +97,22 @@ defmodule Timed.Persister do
     end
   end
 
-  def keep_or_update(:__struct__, _, _) do "Elixir.Timed" end
+  def keep_or_update(:__struct__, _, _) do
+    "Elixir.Timed"
+  end
 
   # Old errors never exists
-  def keep_or_update(:errors, _, new) do new end
+  def keep_or_update(:errors, _, new) do
+    new
+  end
 
   def keep_or_update(key, left, right) do
     Log.info("#{key} - (l)eft or (r)ight? '#{left}' - '#{right}'")
-    answer =  IO.read(2)
-              |> String.first
+
+    answer =
+      IO.read(2)
+      |> String.first()
+
     if answer == "l" or answer == "r" do
       if answer == "l", do: left, else: right
     else
@@ -143,7 +157,13 @@ defmodule Timed.Persister do
 
   """
   def convert_row([date, start_time, end_time, break, note]) do
-    args = [date: date, time: "#{start_time}~#{end_time}", break: String.to_integer(break), note: note]
+    args = [
+      date: date,
+      time: "#{start_time}~#{end_time}",
+      break: String.to_integer(break),
+      note: note
+    ]
+
     Timed.new(args)
   end
 
@@ -152,9 +172,13 @@ defmodule Timed.Persister do
     {:error, :wrong_column_amount}
   end
 
-  def compare_timed_dates(_, %Timed{start: nil}) do false end
+  def compare_timed_dates(_, %Timed{start: nil}) do
+    false
+  end
 
-  def compare_timed_dates(%Timed{start: nil}, _) do false end
+  def compare_timed_dates(%Timed{start: nil}, _) do
+    false
+  end
 
   def compare_timed_dates(%Timed{start: start1}, %Timed{start: start2}) do
     NaiveDateTime.to_date(start1) == NaiveDateTime.to_date(start2)

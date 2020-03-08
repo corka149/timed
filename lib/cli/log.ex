@@ -1,6 +1,4 @@
 defmodule Timed.Cli.Log do
-
-
   @spec error(bitstring()) :: :ok
   def error(message) do
     [:red, message]
@@ -21,7 +19,7 @@ defmodule Timed.Cli.Log do
 
   defp log(message) do
     message
-    |> Bunt.ANSI.format
-    |> IO.puts
+    |> Bunt.ANSI.format()
+    |> IO.puts()
   end
 end

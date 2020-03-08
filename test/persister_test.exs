@@ -39,6 +39,7 @@ defmodule Timed.PersisterTest do
     2018-01-19,08:50,17:00,45,Do it!
     2018-01-20,07:50,16:00,45,Yeah maybe
     """
+
     [first, second] = Timed.Persister.convert_content(content)
 
     assert first == expected_entry1 or first == expected_entry2

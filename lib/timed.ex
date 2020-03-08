@@ -23,8 +23,8 @@ defmodule Timed do
   @spec set_break(any(), keyword()) :: any()
   def set_break(entry, args) do
     case Keyword.take(args, [:break]) do
-       [break: minutes] -> %Timed{entry | break: minutes}
-        _______________ -> entry
+      [break: minutes] -> %Timed{entry | break: minutes}
+      _______________ -> entry
     end
   end
 
@@ -33,8 +33,8 @@ defmodule Timed do
   """
   def set_note(entry, args) do
     case Keyword.take(args, [:note]) do
-       [note: text] -> %Timed{entry | note: text}
-        ___________ -> entry
+      [note: text] -> %Timed{entry | note: text}
+      ___________ -> entry
     end
   end
 
@@ -54,16 +54,18 @@ defmodule Timed do
 
   @spec set_time(map(), keyword(), :end | :start) :: map()
   def set_time(entry, args, time_type) do
-    time = parse_time(args)
-           |> choose_time(time_type)
+    time =
+      parse_time(args)
+      |> choose_time(time_type)
 
-    date_time = Map.new(args)
-                |> Map.put_new(:date, nil)
-                |> Map.put(:time, time)
+    date_time =
+      Map.new(args)
+      |> Map.put_new(:date, nil)
+      |> Map.put(:time, time)
 
     case calc_datetime(date_time) do
-      {:ok, datetime}   -> Map.put(entry, time_type, datetime)
-      {:error, reason}  -> add_error(entry, reason)
+      {:ok, datetime} -> Map.put(entry, time_type, datetime)
+      {:error, reason} -> add_error(entry, reason)
     end
   end
 
@@ -80,14 +82,15 @@ defmodule Timed do
   """
   @spec to_str(Timed.t()) :: <<_::32, _::_*8>>
   def to_str(%Timed{break: break, start: start, end: end_datetime, note: note}) do
-    date = NaiveDateTime.to_date(start)
-           |> Date.to_string
+    date =
+      NaiveDateTime.to_date(start)
+      |> Date.to_string()
+
     start_time = hours_and_minutes(start)
     end_time = hours_and_minutes(end_datetime)
 
     "#{date},#{start_time},#{end_time},#{break},#{note}"
   end
-
 
   @spec calc_datetime(%{date: any, time: any}) ::
           {:error, :incompatible_calendars | :invalid_date | :invalid_format | :invalid_time}
@@ -100,17 +103,19 @@ defmodule Timed do
 
   def calc_datetime(%{date: date, time: nil}) do
     time = Time.utc_now()
+
     case Date.from_iso8601(date) do
       {:ok, date} -> NaiveDateTime.new(date, time)
-      {result, reason}  -> {result, reason}
+      {result, reason} -> {result, reason}
     end
   end
 
   def calc_datetime(%{date: nil, time: time}) do
     date = Date.utc_today()
+
     case Time.from_iso8601(time <> ":00") do
       {:ok, time} -> NaiveDateTime.new(date, time)
-      {result, reason}  -> {result, reason}
+      {result, reason} -> {result, reason}
     end
   end
 
@@ -118,10 +123,10 @@ defmodule Timed do
     NaiveDateTime.from_iso8601("#{date} #{time}:00")
   end
 
-
   @spec parse_time(keyword()) :: [binary()]
   def parse_time(args) do
     time = Keyword.get(args, :time, "~")
+
     case String.split(time, "~") do
       dt when length(dt) == 2 -> dt
       _______________________ -> ["", ""]
@@ -149,10 +154,11 @@ defmodule Timed do
   end
 
   defp hours_and_minutes(datetime) do
-    {hrs_min, _} = datetime
-    |> NaiveDateTime.to_time
-    |> Time.to_string
-    |> String.split_at(5)
+    {hrs_min, _} =
+      datetime
+      |> NaiveDateTime.to_time()
+      |> Time.to_string()
+      |> String.split_at(5)
 
     hrs_min
   end

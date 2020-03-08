@@ -1,5 +1,4 @@
 defmodule Timed.Reporter do
-
   alias Timed.Cli.Log
 
   @doc """
@@ -7,10 +6,13 @@ defmodule Timed.Reporter do
   For this entry it will calculate and return the worked hours.
   """
   @spec get_hours_today(maybe_improper_list()) :: nil | float()
-  def get_hours_today([]) do nil end
+  def get_hours_today([]) do
+    nil
+  end
 
   def get_hours_today([head | tail]) do
     %{start: start} = head
+
     if NaiveDateTime.to_date(start) == Date.utc_today() do
       calc_worked_hours(head)
     else
@@ -33,7 +35,10 @@ defmodule Timed.Reporter do
   @spec calc_total_overtime([Timed.t()]) :: number()
   def calc_total_overtime(timed_list) do
     expected_worked_hours = 8 * length(timed_list)
-    actual_worked_hours = Enum.reduce(timed_list, 0, fn timed, acc -> calc_worked_hours(timed) + acc end)
+
+    actual_worked_hours =
+      Enum.reduce(timed_list, 0, fn timed, acc -> calc_worked_hours(timed) + acc end)
+
     actual_worked_hours - expected_worked_hours
   end
 
@@ -49,8 +54,8 @@ defmodule Timed.Reporter do
   """
   @spec calc_worked_hours(Timed.t()) :: float()
   def calc_worked_hours(%Timed{start: start_datetime, end: end_datetime, break: break}) do
-    diff_seconds = NaiveDateTime.diff end_datetime, start_datetime
-    (diff_seconds / 60 / 60) - (break / 60)
+    diff_seconds = NaiveDateTime.diff(end_datetime, start_datetime)
+    diff_seconds / 60 / 60 - break / 60
   end
 
   @doc """
