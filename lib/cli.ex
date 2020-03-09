@@ -110,6 +110,7 @@ defmodule Timed.Cli do
     unless :ok == result do
       Log.error("Invalid date format.")
     end
+
     :ok == result
   end
 
@@ -128,9 +129,11 @@ defmodule Timed.Cli do
 
     check = fn time, type ->
       {result, _} = Time.from_iso8601("#{time}:00")
-      unless :ok == result do
-        Log.error("Invalid time format for #{type} time.")
+
+      if :ok != result and 0 < String.length(time) do
+        Log.error("Invalid time format for #{type} time (Invalid value: '#{time}').")
       end
+
       :ok == result
     end
 
