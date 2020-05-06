@@ -1,0 +1,21 @@
+version: "3"
+
+services:
+    amqp:
+        image: rabbitmq:3-management
+        ports: 
+            - 5672:5672
+            - 15672:15672
+        hostname: timed-rabbitmq
+        environment:
+            RABBITMQ_DEFAULT_USER: admin
+            RABBITMQ_DEFAULT_PASS: s3cr3t
+            RABBITMQ_DEFAULT_VHOST: timed_vhost
+    
+    mongo:
+        image: mongo:3.6
+        ports: 
+            - 27017:27017
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: admin
+            MONGO_INITDB_ROOT_PASSWORD: p4ssw0rd

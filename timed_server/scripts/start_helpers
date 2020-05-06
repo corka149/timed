@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+docker-compose -f ./helper/docker-compose.yaml -p timed up -d
