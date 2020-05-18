@@ -7,12 +7,13 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
+  build_client:
 
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
+    - run: cd client
     - name: Setup elixir
       uses: actions/setup-elixir@v1
       with:
