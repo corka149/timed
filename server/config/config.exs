@@ -16,3 +16,8 @@ import Config
 #       format: "$date $time [$level] $metadata$message\n",
 #       metadata: [:user_id]
 #
+
+config :communicator,
+  amqp_username: "admin",
+  amqp_password: "s3cr3t",
+  amqp_virtual_host: "timed_vhost"

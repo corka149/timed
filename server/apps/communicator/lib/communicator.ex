@@ -4,7 +4,7 @@ defmodule Communicator do
   """
 
   def send_and_receive do
-    {:ok, conn} = AMQP.Connection.open(username: "admin", password: "s3cr3t", virtual_host: "timed_vhost")
+    {:ok, conn} = AMQP.Connection.open(amqp_connection_config())
     {:ok, chan} = AMQP.Channel.open(conn)
 
     AMQP.Queue.declare(chan, queue())
@@ -17,11 +17,24 @@ defmodule Communicator do
     IO.puts payload
   end
 
+  @spec exchange :: <<_::176>>
   def exchange do
     "working_hours_exchange"
   end
 
+  @spec queue :: <<_::152>>
   def queue do
     "working_hours_queue"
+  end
+
+  @spec amqp_connection_config :: [
+          {:password, bitstring()} | {:username, bitstring()} | {:virtual_host, bitstring()}
+        ]
+  def amqp_connection_config do
+    [
+      username: Application.get_env(:communicator, :amqp_username, "guest"),
+      password: Application.get_env(:communicator, :amqp_password, "guest"),
+      virtual_host: Application.get_env(:communicator, :amqp_virtual_host, "/")
+    ]
   end
 end
