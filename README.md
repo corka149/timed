@@ -1,5 +1,8 @@
 # Timed
-Manages your working times.
+
+![Elixir CI](https://github.com/corka149/timed/workflows/Elixir%20CI/badge.svg)
+
+Manages my working times. This project is mainly for tinkering around with Elixir, RabbitMQ and Mongodb.
 
 ## Usage
 ```
