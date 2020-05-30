@@ -4,6 +4,7 @@ defmodule Timed do
   """
 
   defstruct start: nil, end: nil, note: "", break: 0, errors: []
+  @type t :: %__MODULE__{start: NaiveDateTime.t() | nil, end: NaiveDateTime.t() | nil, note: bitstring(), break: integer(), errors: list(any())}
 
   @doc """
   Creates a new Timed entry.
