@@ -7,19 +7,15 @@ Manages my working times. This project is mainly for tinkering around with Elixi
 ## Usage
 ```
 -d, --date          Takes the date that should be used. Format: "yyyy-mm-dd" -> E.g.
-                    2019-03-28. When not provided, it will use the current date.
+                    2019-03-28. Default: today
 
--s, --start         Takes the start time. Format "hh:mm" -> E.g. "08:00".
-                    When the parameter is not provided it will use the current time 
-                    for the missing time.
+-s, --start         Takes the start time. Format "hh:mm" -> E.g. "08:00". Default: now
 
--e, --end           Parameter for end time. Format "hh:mm" -> E.g. "08:00".
-                    When the parameter is not provided it will use the current time 
-                    for the missing time.
+-e, --end           Parameter for end time. Format "hh:mm" -> E.g. "08:00". Default: now
 
 -b, --break         Takes the duration of the break in minutes. Default: 0min
 
--n, --note          Takes a note and add it to an entry.
+-n, --note          Takes a note and add it to an entry. Default: ""
 
 ```
 
