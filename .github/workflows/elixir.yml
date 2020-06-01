@@ -23,4 +23,3 @@ jobs:
       working-directory: client
     - name: Run Tests
       run: mix test
-      working-directory: client
