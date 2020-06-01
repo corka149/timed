@@ -73,13 +73,13 @@ defmodule Timed.Cli do
 
   ## Examples
 
-      iex> parsed_args = {[date: "2018-11-11", time: "~17:00"], [], []}
+      iex> parsed_args = {[date: "2018-11-11", end: "17:00"], [], []}
       iex> Timed.Cli.args_valid? parsed_args
       true
-      iex> parsed_args = {[time: "07:00~"], [], []}
+      iex> parsed_args = {[start: "07:00"], [], []}
       iex> Timed.Cli.args_valid? parsed_args
       true
-      iex> invalid_parsed_args = {[time: "28:00~29:10"], [], []}
+      iex> invalid_parsed_args = {[start: "28:00", end: "29:10"], [], []}
       iex> Timed.Cli.args_valid? invalid_parsed_args
       false
   """
@@ -89,15 +89,19 @@ defmodule Timed.Cli do
   end
 
   def args_valid?({parsed, _, _}) do
-    valid_time =
-      Keyword.take(parsed, [:time])
+    valid_start =
+      Keyword.take(parsed, [:start])
+      |> is_valid_time?
+
+    valid_end =
+      Keyword.take(parsed, [:end])
       |> is_valid_time?
 
     valid_date =
       Keyword.take(parsed, [:date])
       |> is_valid_date?
 
-    valid_time and valid_date
+      valid_start and valid_end and valid_date
   end
 
   # It is ok when no date argument is provided
@@ -126,7 +130,8 @@ defmodule Timed.Cli do
   end
 
   defp is_valid_time?(args) do
-    [start_t, end_t] = Timed.parse_time(args)
+    start_t = Keyword.get(args, :start, "")
+    end_t = Keyword.get(args, :end, "")
 
     check = fn time, type ->
       {result, _} = Time.from_iso8601("#{time}:00")

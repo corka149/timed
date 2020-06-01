@@ -62,9 +62,7 @@ defmodule Timed do
 
   @spec set_time(map(), keyword(), :end | :start) :: map()
   def set_time(entry, args, time_type) do
-    time =
-      parse_time(args)
-      |> choose_time(time_type)
+    time = [Keyword.get(args, :start, ""), Keyword.get(args, :end, "")] |> choose_time(time_type)
 
     date_time =
       Map.new(args)
@@ -129,16 +127,6 @@ defmodule Timed do
 
   def calc_datetime(%{date: date, time: time}) do
     NaiveDateTime.from_iso8601("#{date} #{time}:00")
-  end
-
-  @spec parse_time(keyword()) :: [binary()]
-  def parse_time(args) do
-    time = Keyword.get(args, :time, "~")
-
-    case String.split(time, "~") do
-      dt when length(dt) == 2 -> dt
-      _______________________ -> ["", ""]
-    end
   end
 
   defp choose_time([start_time, _], :start) do

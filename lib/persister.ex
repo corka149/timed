@@ -159,7 +159,8 @@ defmodule Timed.Persister do
   def convert_row([date, start_time, end_time, break, note]) do
     args = [
       date: date,
-      time: "#{start_time}~#{end_time}",
+      start: "#{start_time}",
+      end: "#{end_time}",
       break: String.to_integer(break),
       note: note
     ]
