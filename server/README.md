@@ -1,4 +1,0 @@
-# TimedServer
-
-**TODO: Add description**
-
