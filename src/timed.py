@@ -1,9 +1,9 @@
 from datetime import datetime, date, time
 from os import path
-from time import strptime
 from typing import Optional
 
 import click
+from click import ClickException
 from sqlalchemy import create_engine, Column, Integer, Date, Time, String, Sequence
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -35,7 +35,6 @@ class WorkingDay(Base):
 
 
 class Cli:
-
     engine = None
     Session = None
 
@@ -66,16 +65,16 @@ class Cli:
         """
         if init:
             Base.metadata.create_all(Cli.engine)
-        session = Cli.Session()
         start = Cli.str_to_time(start)
         end = Cli.str_to_time(end)
 
         Cli.process_command_call(date_arg=date_arg, start=start, end=end, brk=brk, note=note,
-                                 delete=delete, session=session)
-        session.commit()
+                                 delete=delete)
 
     @staticmethod
-    def process_command_call(date_arg, start, end, brk, note: str, delete: bool, session):
+    def process_command_call(date_arg: str = None, start: time = None, end: time = None, brk: int  = None, note: str  = None,
+                             delete: bool = False, session=None):
+        session = session if session else Cli.Session()
         w_date = Cli.str_to_date(date_arg) if date_arg else date.today()
         existing_wd: WorkingDay = session.query(WorkingDay).filter(WorkingDay.day == w_date).first()
         action = 'Nothing happened'
@@ -91,16 +90,23 @@ class Cli:
             else:
                 existing_wd.update(brk, end, note, start)
                 action = f'Updated entry for {w_date}'
+        session.commit()
         print(action)
 
     # ===== Utils =====
     @staticmethod
     def str_to_date(w_date: str) -> Optional[date]:
-        return datetime.strptime(w_date, '%Y-%m-%d').date() if w_date else None
+        try:
+            return datetime.strptime(w_date, '%Y-%m-%d').date() if w_date else None
+        except ValueError:
+            raise ClickException('Invalid date')
 
     @staticmethod
     def str_to_time(w_time: str) -> Optional[time]:
-        return datetime.strptime(w_time, '%H:%M').time() if w_time else None
+        try:
+            return datetime.strptime(w_time, '%H:%M').time() if w_time else None
+        except ValueError:
+            raise ClickException('Invalid time')
 
 
 def main():
