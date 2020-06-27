@@ -34,14 +34,14 @@ def test_str_to_time__invalid():
 
 def test_process_command_call__add_working_day():
     note = str(uuid.uuid4())
-    start = time(hour=6, minute=20)
-    end = time(hour=17)
+
     session = Session()
-    Cli.process_command_call(start=start, end=end, brk=30, note=note, delete=False, session=session)
+    Cli.process_command_call(start='06:20', end='17:00', brk=30, note=note, delete=False, session=session)
     working_day: WorkingDay = session.query(WorkingDay).filter(WorkingDay.note == note).first()
+
     assert working_day is not None
-    assert working_day.start == start
-    assert working_day.end == end
+    assert working_day.start == time(6, 20)
+    assert working_day.end == time(17)
 
 
 def test_process_command_call__update_working_day():
@@ -50,14 +50,12 @@ def test_process_command_call__update_working_day():
     session = Session()
     session.add(working_day)
 
-    start = time(7)
-    end = time(18)
-    Cli.process_command_call(session=session, date_arg=str(w_date), start=start, end=end)
-
+    Cli.process_command_call(date_arg=str(w_date), start='07:00', end='18:00', session=session)
     working_day: WorkingDay = session.query(WorkingDay).filter(WorkingDay.note == note).first()
+
     assert working_day is not None
-    assert working_day.start == start
-    assert working_day.end == end
+    assert working_day.start == time(7)
+    assert working_day.end == time(18)
 
 
 def test_process_command_call__delete_working_day():
@@ -67,8 +65,8 @@ def test_process_command_call__delete_working_day():
     session.add(working_day)
 
     Cli.process_command_call(session=session, date_arg=str(w_date), delete=True)
-
     working_day: WorkingDay = session.query(WorkingDay).filter(WorkingDay.note == note).first()
+
     assert working_day is None
 
 
