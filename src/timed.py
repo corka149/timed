@@ -12,7 +12,7 @@ from sqlalchemy.orm import sessionmaker
 
 Base = declarative_base()
 db_path = 'sqlite:///' + path.join(path.expanduser('~'), '.timed.db')
-engine = create_engine(db_path, echo=True)
+engine = create_engine(db_path)
 Session = sessionmaker(bind=engine)
 
 
@@ -65,18 +65,21 @@ def cli(init: bool, date_arg, start, end, brk, note: str, delete: bool):
 
 def process_command_call(date_arg, start, end, brk, note: str, delete: bool, session: Session):
     w_date = str_to_date(date_arg) if date_arg else date.today()
-    existing_wd = session.query(WorkingDay).filter(WorkingDay.day == w_date).first()
+    existing_wd: WorkingDay = session.query(WorkingDay).filter(WorkingDay.day == w_date).first()
+    action = 'Nothing happened'
 
     if delete:
         if date_arg and existing_wd:
-            session.delete(w_date)
-        else:
-            print('No entry found for %s'.format())
+            session.delete(existing_wd)
+            action = f'Deleted entry for {existing_wd.day}'
     elif not delete:
         if existing_wd is None:
             session.add(WorkingDay(day=w_date, break_in_m=brk, start=start, end=end, note=note))
+            action = f'Added entry for {w_date}'
         else:
-            existing_wd.update(brk, end, existing_wd, note, start)
+            existing_wd.update(brk, end, note, start)
+            action = f'Updated entry for {w_date}'
+    print(action)
 
 
 # ===== Utils =====
