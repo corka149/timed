@@ -15,7 +15,7 @@ setup(
     ],
     entry_points={
         "console_scripts": [
-            "timed = timed:cli"
+            "timed = timed:main"
         ]
     }
 )

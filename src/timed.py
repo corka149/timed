@@ -11,9 +11,6 @@ from sqlalchemy.orm import sessionmaker
 # ===== Database =====
 
 Base = declarative_base()
-db_path = 'sqlite:///' + path.join(path.expanduser('~'), '.timed.db')
-engine = create_engine(db_path)
-Session = sessionmaker(bind=engine)
 
 
 class WorkingDay(Base):
@@ -37,59 +34,76 @@ class WorkingDay(Base):
         self.note = note if note else self.note
 
 
-# ===== Cli =====
-@click.command()
-@click.option('-i', '--init', help='Initialize database', is_flag=True)
-@click.option('-d', '--date', 'date_arg', help='Takes the date that should be used. Format: '
-                                               '"yyyy-mm-dd" -> E.g. 2019-03-28. Default: today')
-@click.option('-s', '--start', help='Takes the start time. Format "hh:mm" -> E.g. "08:00". '
-                                    'Default: now')
-@click.option('-e', '--end', help='Parameter for end time. Format "hh:mm" -> E.g. "08:00". '
-                                  'Default: now')
-@click.option('-b', '--break', 'brk', type=int, help='Takes the duration of the break in minutes. '
-                                                     'Default: 0min')
-@click.option('-n', '--note', type=str, help='Takes a note and add it to an entry. Default: ""')
-@click.option('--delete', help='Deletes the given date. Has no effect without date', is_flag=True)
-def cli(init: bool, date_arg, start, end, brk, note: str, delete: bool):
-    if init:
-        Base.metadata.create_all(engine)
-    session = Session()
-    start = str_to_time(start)
-    end = str_to_time(end)
+class Cli:
 
-    process_command_call(date_arg=date_arg, start=start, end=end, brk=brk, note=note,
-                         delete=delete, session=session)
+    engine = None
+    Session = None
 
-    session.commit()
+    @classmethod
+    def init(cls):
+        db_path = 'sqlite:///' + path.join(path.expanduser('~'), '.timed.db')
+        cls.engine = create_engine(db_path)
+        cls.Session = sessionmaker(bind=cls.engine)
+
+    @staticmethod
+    @click.command()
+    @click.option('-i', '--init', help='Initialize database', is_flag=True)
+    @click.option('-d', '--date', 'date_arg', help='Takes the date that should be used. Format: '
+                                                   '"yyyy-mm-dd" -> E.g. 2019-03-28. Default: today')
+    @click.option('-s', '--start', help='Takes the start time. Format "hh:mm" -> E.g. "08:00". '
+                                        'Default: now')
+    @click.option('-e', '--end', help='Parameter for end time. Format "hh:mm" -> E.g. "08:00". '
+                                      'Default: now')
+    @click.option('-b', '--break', 'brk', type=int,
+                  help='Takes the duration of the break in minutes. '
+                       'Default: 0min')
+    @click.option('-n', '--note', type=str, help='Takes a note and add it to an entry. Default: ""')
+    @click.option('--delete', help='Deletes the given date. Has no effect without date',
+                  is_flag=True)
+    def main(init: bool, date_arg, start, end, brk, note: str, delete: bool):
+        if init:
+            Base.metadata.create_all(Cli.engine)
+        session = Cli.Session()
+        start = Cli.str_to_time(start)
+        end = Cli.str_to_time(end)
+
+        Cli.process_command_call(date_arg=date_arg, start=start, end=end, brk=brk, note=note,
+                                 delete=delete, session=session)
+        session.commit()
+
+    @staticmethod
+    def process_command_call(date_arg, start, end, brk, note: str, delete: bool, session):
+        w_date = Cli.str_to_date(date_arg) if date_arg else date.today()
+        existing_wd: WorkingDay = session.query(WorkingDay).filter(WorkingDay.day == w_date).first()
+        action = 'Nothing happened'
+
+        if delete:
+            if date_arg and existing_wd:
+                session.delete(existing_wd)
+                action = f'Deleted entry for {existing_wd.day}'
+        elif not delete:
+            if existing_wd is None:
+                session.add(WorkingDay(day=w_date, break_in_m=brk, start=start, end=end, note=note))
+                action = f'Added entry for {w_date}'
+            else:
+                existing_wd.update(brk, end, note, start)
+                action = f'Updated entry for {w_date}'
+        print(action)
+
+    # ===== Utils =====
+    @staticmethod
+    def str_to_date(w_date: str) -> Optional[date]:
+        return datetime.strptime(w_date, '%Y-%m-%d').date() if w_date else None
+
+    @staticmethod
+    def str_to_time(w_time: str) -> Optional[time]:
+        return datetime.strptime(w_time, '%H:%M').time() if w_time else None
 
 
-def process_command_call(date_arg, start, end, brk, note: str, delete: bool, session: Session):
-    w_date = str_to_date(date_arg) if date_arg else date.today()
-    existing_wd: WorkingDay = session.query(WorkingDay).filter(WorkingDay.day == w_date).first()
-    action = 'Nothing happened'
-
-    if delete:
-        if date_arg and existing_wd:
-            session.delete(existing_wd)
-            action = f'Deleted entry for {existing_wd.day}'
-    elif not delete:
-        if existing_wd is None:
-            session.add(WorkingDay(day=w_date, break_in_m=brk, start=start, end=end, note=note))
-            action = f'Added entry for {w_date}'
-        else:
-            existing_wd.update(brk, end, note, start)
-            action = f'Updated entry for {w_date}'
-    print(action)
-
-
-# ===== Utils =====
-def str_to_date(w_date: str) -> Optional[date]:
-    return datetime.strptime(w_date, '%Y-%m-%d').date() if w_date else None
-
-
-def str_to_time(w_time: str) -> Optional[time]:
-    return datetime.strptime(w_time, '%H:%M').time() if w_time else None
+def main():
+    Cli.init()
+    Cli.main()
 
 
 if __name__ == '__main__':
-    cli()
+    main()
