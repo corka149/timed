@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='timed',
-    version='1.0.0',
+    version='2.0.0',
     packages=[''],
     package_dir={'': 'src'},
     url='https://github.com/corka149/timed/tree/master',
