@@ -1,6 +1,6 @@
 # Timed
 
-![Elixir CI](https://github.com/corka149/timed/workflows/Elixir%20CI/badge.svg)
+![Python package](https://github.com/corka149/timed/workflows/Python%20package/badge.svg)
 
 Manages my working times.
 
