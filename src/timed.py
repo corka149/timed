@@ -61,6 +61,9 @@ class Cli:
     @click.option('--delete', help='Deletes the given date. Has no effect without date',
                   is_flag=True)
     def main(init: bool, date_arg, start, end, brk, note: str, delete: bool):
+        """
+        Manages working time
+        """
         if init:
             Base.metadata.create_all(Cli.engine)
         session = Cli.Session()
