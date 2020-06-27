@@ -6,16 +6,25 @@ Manages my working times.
 
 ## Usage
 ```
--d, --date          Takes the date that should be used. Format: "yyyy-mm-dd" -> E.g.
-                    2019-03-28. Default: today
+Usage: timed [OPTIONS]
 
--s, --start         Takes the start time. Format "hh:mm" -> E.g. "08:00". Default: now
+Options:
+  -i, --init           Initialize database
+  -d, --date TEXT      Takes the date that should be used. Format: "yyyy-mm-
+                       dd" -> E.g. 2019-03-28. Default: today
 
--e, --end           Parameter for end time. Format "hh:mm" -> E.g. "08:00". Default: now
+  -s, --start TEXT     Takes the start time. Format "hh:mm" -> E.g. "08:00".
+                       Default: now
 
--b, --break         Takes the duration of the break in minutes. Default: 0min
+  -e, --end TEXT       Parameter for end time. Format "hh:mm" -> E.g. "08:00".
+                       Default: now
 
--n, --note          Takes a note and add it to an entry. Default: ""
+  -b, --break INTEGER  Takes the duration of the break in minutes. Default:
+                       0min
+
+  -n, --note TEXT      Takes a note and add it to an entry. Default: ""
+  --delete             Deletes the given date. Has no effect without date
+  --help               Show this message and exit.
 
 ```
 
