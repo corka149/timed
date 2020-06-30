@@ -8,8 +8,8 @@ from sqlalchemy import create_engine, Column, Integer, Date, Time, String, Seque
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-
 # ===== Database =====
+
 Base = declarative_base()
 
 
@@ -78,8 +78,9 @@ class Cli:
         elif not delete:
             action = Cli.save(session, existing_wd, brk, end, note, start, w_date)
 
+        overtime = Cli.calc_overtime(session)
         session.commit()
-        print(action)
+        print(action + f'\nOvertime: {overtime} hours')
 
     @staticmethod
     def delete(session, existing_wd):
@@ -112,6 +113,14 @@ class Cli:
             return datetime.strptime(w_time, '%H:%M').time() if w_time else None
         except ValueError:
             raise ClickException(f'Invalid time "{w_time}"')
+
+    @staticmethod
+    def calc_overtime(session):
+        sum_working_hours = 0.0
+        for start, end in session.query(WorkingDay.start, WorkingDay.end):
+            delta = datetime.combine(date.min, end) - datetime.combine(date.min, start)
+            sum_working_hours += delta.seconds / 60 / 60
+        return sum_working_hours - session.query(WorkingDay).count() * 8
 
 
 def main():
