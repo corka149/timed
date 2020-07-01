@@ -78,6 +78,10 @@ class Cli:
         elif not delete:
             action = Cli.save(session, existing_wd, brk, end, note, start, w_date)
 
+        Cli.report_and_end(action, session)
+
+    @staticmethod
+    def report_and_end(action, session):
         overtime = Cli.calc_overtime(session)
         session.commit()
         print(action + f'\nOvertime: {overtime} hours')
