@@ -121,10 +121,12 @@ class Cli:
     @staticmethod
     def calc_overtime(session):
         sum_working_hours = 0.0
-        for start, end in session.query(WorkingDay.start, WorkingDay.end):
+        sum_break_in_m = 0.0
+        for start, end, break_in_m in session.query(WorkingDay.start, WorkingDay.end, WorkingDay.break_in_m):
             delta = datetime.combine(date.min, end) - datetime.combine(date.min, start)
             sum_working_hours += delta.seconds / 60 / 60
-        return sum_working_hours - session.query(WorkingDay).count() * 8
+            sum_break_in_m += break_in_m
+        return sum_working_hours - session.query(WorkingDay).count() * 8 - sum_break_in_m / 60
 
 
 def main():
