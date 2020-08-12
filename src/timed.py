@@ -1,6 +1,6 @@
-from datetime import datetime, date, time
+from datetime import datetime, date, time, timedelta
 from os import path
-from typing import Optional
+from typing import Optional, Union, Tuple
 
 import click
 from click import ClickException
@@ -72,13 +72,15 @@ class Cli:
         session = session if session else Cli.Session()
         existing_wd: WorkingDay = session.query(WorkingDay).filter(WorkingDay.day == w_date).first()
 
-        action = 'Nothing happened'
+        user_message = 'Nothing happened'
         if delete:
-            action = Cli.delete(session, existing_wd) if date_arg and existing_wd else action
+            user_message = Cli.delete(session, existing_wd) if date_arg and existing_wd else user_message
         elif not delete:
-            action = Cli.save(session, existing_wd, brk, end, note, start, w_date)
+            user_message, existing_wd = Cli.save(session, existing_wd, brk, end, note, start, w_date)
 
-        Cli.report_and_end(action, session)
+        user_message = Cli.create_worked_hours_message(existing_wd, user_message)
+
+        Cli.report_and_end(user_message, session)
 
     @staticmethod
     def report_and_end(action, session):
@@ -92,16 +94,18 @@ class Cli:
         return f'Deleted entry for {existing_wd.day}'
 
     @staticmethod
-    def save(session, existing_wd, brk, end, note, start, w_date):
+    def save(session, existing_wd, brk, end, note, start, w_date) -> Tuple[str, WorkingDay]:
         start, end = Cli.str_to_time(start), Cli.str_to_time(end)
 
         if existing_wd is None:
-            session.add(WorkingDay(day=w_date, break_in_m=brk, start=start, end=end, note=note))
-            action = f'Added entry for {w_date}'
+            existing_wd = WorkingDay(day=w_date, break_in_m=brk, start=start, end=end, note=note)
+            session.add(existing_wd)
+            save_message = f'Added entry for {w_date}'
         else:
             existing_wd.update(brk, end, note, start)
-            action = f'Updated entry for {w_date}'
-        return action
+            save_message = f'Updated entry for {w_date}'
+
+        return save_message, existing_wd
 
     # ===== Utils =====
     @staticmethod
@@ -127,6 +131,13 @@ class Cli:
             sum_working_hours += delta.seconds / 60 / 60
             sum_break_in_m += break_in_m
         return sum_working_hours - session.query(WorkingDay).count() * 8 - sum_break_in_m / 60
+
+    @staticmethod
+    def create_worked_hours_message(existing_wd, user_message):
+        worked_hours = datetime.combine(date.min, existing_wd.end) - datetime.combine(date.min, existing_wd.start)
+        worked_hours -= timedelta(minutes=existing_wd.break_in_m)
+        user_message += f'\nWorked today {worked_hours}'
+        return user_message
 
 
 def main():
