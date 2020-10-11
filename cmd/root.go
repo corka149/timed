@@ -24,6 +24,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -32,22 +33,30 @@ import (
 
 var cfgFile string
 
-// rootCmd represents the base command when called without any subcommands
-var rootCmd = &cobra.Command{
-	Use:   "timed",
-	Short: "Manages working times",
-	Long: `The timed cli helps to managing working times.
-  _______
- /  12   \
-|    |    |
-|9   |   3|
-|     \   |
-|         |
- \___6___/
+var (
+	date  *string
+	start *string
+	end   *string
 
-	`,
-	Run: func(cmd *cobra.Command, args []string) { fmt.Println("Timed started") },
-}
+	brk  *int
+	note *string
+
+	rootCmd = &cobra.Command{
+		Use:   "timed",
+		Short: "Manages working times",
+		Long: `The timed cli helps to managing working times.
+	  _______
+	 /  12   \
+	|    |    |
+	|9   |   3|
+	|     \   |
+	|         |
+	 \___6___/
+	
+		`,
+		Run: func(cmd *cobra.Command, args []string) { fmt.Println("Timed started") },
+	}
+)
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
@@ -61,9 +70,16 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	rootCmd.Flags().IntP("break", "b", 0, "Takes the duration of the break in minutes. Default: 0min")
-	rootCmd.Flags().StringP("note", "n", "", "Takes a note and add it to an entry. Default: ''")
-	rootCmd.Flags().Bool("delete", false, "Deletes the given date. Has no effect without date.")
+	now := time.Now()
+	dStr := fmt.Sprintf("%d-%d-%d", now.Year(), now.Month(), now.Day())
+	tStr := fmt.Sprintf("%02d:%02d", now.Hour(), now.Minute())
+
+	date = rootCmd.Flags().StringP("date", "d", dStr, `Takes the date that should be used. Format: "yyyy-mm-dd" -> E.g. 2019-03-28.`)
+	start = rootCmd.Flags().StringP("start", "s", tStr, `Takes the start time. Format "hh:mm" -> E.g. "08:00".`)
+	end = rootCmd.Flags().StringP("end", "e", tStr, `Parameter for end time. Format "hh:mm" -> E.g. "08:00".`)
+
+	brk = rootCmd.Flags().IntP("break", "b", 0, "Takes the duration of the break in minutes. (default 0min)")
+	note = rootCmd.Flags().StringP("note", "n", "", "Takes a note and add it to an entry. Default: ''")
 }
 
 // initConfig reads in config file and ENV variables if set.
