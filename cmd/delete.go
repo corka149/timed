@@ -1,4 +1,6 @@
 /*
+Package cmd contains all commands that belongs to the timed cli
+
 Copyright © 2020 Sebastian Ziemann <corka149@mailbox.org>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy

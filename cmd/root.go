@@ -1,4 +1,6 @@
 /*
+Package cmd contains all commands that belongs to the timed cli
+
 Copyright © 2020 Sebastian Ziemann <corka149@mailbox.org>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -23,9 +25,10 @@ package cmd
 
 import (
 	"fmt"
-	"os"
+	"log"
 	"time"
 
+	"github.com/corka149/timed/db"
 	"github.com/spf13/cobra"
 
 	homedir "github.com/mitchellh/go-homedir"
@@ -54,7 +57,7 @@ var (
 	 \___6___/
 	
 		`,
-		Run: func(cmd *cobra.Command, args []string) { fmt.Println("Timed started") },
+		Run: run,
 	}
 )
 
@@ -62,32 +65,57 @@ var (
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		log.Fatal(err)
 	}
 }
 
+func run(cmd *cobra.Command, args []string) {
+	d, err := time.Parse("2006-01-02", *date)
+	if err != nil && *date != "" {
+		log.Fatal(err)
+	}
+	if *date == "" {
+		d = time.Now()
+	}
+
+	s, err := time.Parse("03:04", *start)
+	if err != nil && *start != "" {
+		log.Fatal(err)
+	}
+	if *start == "" {
+		s = d
+	}
+
+	e, err := time.Parse("03:04", *end)
+	if err != nil && *end != "" {
+		log.Fatal(err)
+	}
+	if *end == "" {
+		e = d
+	}
+
+	fmt.Println("#TODO remove me", d, s, e)
+
+	wd, err := db.LoadDay(dbPath(), &d)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println(wd)
+}
+
 func init() {
-	cobra.OnInitialize(initConfig)
-
-	now := time.Now()
-	dStr := fmt.Sprintf("%d-%d-%d", now.Year(), now.Month(), now.Day())
-	tStr := fmt.Sprintf("%02d:%02d", now.Hour(), now.Minute())
-
-	date = rootCmd.Flags().StringP("date", "d", dStr, `Takes the date that should be used. Format: "yyyy-mm-dd" -> E.g. 2019-03-28.`)
-	start = rootCmd.Flags().StringP("start", "s", tStr, `Takes the start time. Format "hh:mm" -> E.g. "08:00".`)
-	end = rootCmd.Flags().StringP("end", "e", tStr, `Parameter for end time. Format "hh:mm" -> E.g. "08:00".`)
+	date = rootCmd.Flags().StringP("date", "d", "", `Takes the date that should be used. Format: "yyyy-mm-dd" -> E.g. 2019-03-28. (default: today)`)
+	start = rootCmd.Flags().StringP("start", "s", "", `Takes the start time. Format "hh:mm" -> E.g. "08:00". (default: now)`)
+	end = rootCmd.Flags().StringP("end", "e", "", `Parameter for end time. Format "hh:mm" -> E.g. "08:00". (default: now)`)
 
 	brk = rootCmd.Flags().IntP("break", "b", 0, "Takes the duration of the break in minutes. (default 0min)")
 	note = rootCmd.Flags().StringP("note", "n", "", "Takes a note and add it to an entry. Default: ''")
 }
 
-// initConfig reads in config file and ENV variables if set.
-func initConfig() {
+func dbPath() string {
 	home, err := homedir.Dir()
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		log.Fatal(err)
 	}
-	fmt.Println("Loaded db from:", home)
+	return home + "/.timed.db"
 }
