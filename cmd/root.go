@@ -29,6 +29,7 @@ import (
 	"time"
 
 	"github.com/corka149/timed/db"
+	"github.com/corka149/timed/timed"
 	"github.com/spf13/cobra"
 
 	homedir "github.com/mitchellh/go-homedir"
@@ -48,13 +49,13 @@ var (
 		Use:   "timed",
 		Short: "Manages working times",
 		Long: `The timed cli helps to managing working times.
-	  _______
-	 /  12   \
-	|    |    |
-	|9   |   3|
-	|     \   |
-	|         |
-	 \___6___/
+	  _________
+	 /   12    \
+	|     |     |
+	|9    |    3|
+	|      \    |
+	|           |
+	 \____6____/
 	
 		`,
 		Run: run,
@@ -82,25 +83,37 @@ func run(cmd *cobra.Command, args []string) {
 	if err != nil && *start != "" {
 		log.Fatal(err)
 	}
-	if *start == "" {
-		s = d
-	}
 
 	e, err := time.Parse("03:04", *end)
 	if err != nil && *end != "" {
 		log.Fatal(err)
 	}
-	if *end == "" {
-		e = d
-	}
 
 	fmt.Println("#TODO remove me", d, s, e)
 
-	wd, err := db.LoadDay(dbPath(), &d)
-	if err != nil {
-		log.Fatal(err)
+	if wd := db.LoadDay(dbPath(), &d); wd != nil {
+		// Update
+		if *brk != wd.Brk() {
+			wd.SetBrk(*brk)
+		}
+		if *note != wd.Note() {
+			wd.SetNote(*note)
+		}
+
+		db.UpdateDay(dbPath(), *wd)
+	} else {
+		newWd := timed.WorkingDay{}
+
+		if *start == "" {
+			s = d
+		}
+		if *end == "" {
+			e = d
+		}
+
+		// Insert
+		db.InsertDay(dbPath(), newWd)
 	}
-	log.Println(wd)
 }
 
 func init() {
