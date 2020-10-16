@@ -24,7 +24,6 @@ THE SOFTWARE.
 package cmd
 
 import (
-	"fmt"
 	"log"
 	"time"
 
@@ -89,29 +88,37 @@ func run(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
-	fmt.Println("#TODO remove me", d, s, e)
-
 	if wd := db.LoadDay(dbPath(), &d); wd != nil {
 		// Update
-		if *brk != wd.Brk() {
-			wd.SetBrk(*brk)
+		if *start != "" && s != wd.Start {
+			wd.Start = s
 		}
-		if *note != wd.Note() {
-			wd.SetNote(*note)
+		if *end != "" && e != wd.End {
+			wd.End = e
+		}
+		if *brk > -1 && *brk != wd.Brk {
+			wd.Brk = *brk
+		}
+		if *note != wd.Note {
+			wd.Note = *note
 		}
 
 		db.UpdateDay(dbPath(), *wd)
 	} else {
-		newWd := timed.WorkingDay{}
-
+		// Insert
+		b := 0
 		if *start == "" {
-			s = d
+			s = time.Now()
 		}
 		if *end == "" {
-			e = d
+			e = time.Now()
+		}
+		if *brk > -1 {
+			b = *brk
 		}
 
-		// Insert
+		newWd := timed.WorkingDay{Day: d, Start: s, End: e, Brk: b, Note: *note}
+
 		db.InsertDay(dbPath(), newWd)
 	}
 }
@@ -121,7 +128,7 @@ func init() {
 	start = rootCmd.Flags().StringP("start", "s", "", `Takes the start time. Format "hh:mm" -> E.g. "08:00". (default: now)`)
 	end = rootCmd.Flags().StringP("end", "e", "", `Parameter for end time. Format "hh:mm" -> E.g. "08:00". (default: now)`)
 
-	brk = rootCmd.Flags().IntP("break", "b", 0, "Takes the duration of the break in minutes. (default 0min)")
+	brk = rootCmd.Flags().IntP("break", "b", -1, "Takes the duration of the break in minutes. (default 0min)")
 	note = rootCmd.Flags().StringP("note", "n", "", "Takes a note and add it to an entry. Default: ''")
 }
 
