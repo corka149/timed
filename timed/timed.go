@@ -20,7 +20,7 @@ type WorkingDay struct {
 }
 
 func (wd *WorkingDay) String() string {
-	return fmt.Sprintf("%d: Worked from %s to %s taking %d min break (note: %s)", wd.id, wd.start, wd.end, wd.brk, wd.note)
+	return fmt.Sprintf("%d: Worked from %s to %s taking %d min break (note: %s)", wd.ID, wd.Start, wd.End, wd.Brk, wd.Note)
 }
 
 // New creates a new WorkingDay from query
