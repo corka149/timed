@@ -14,7 +14,7 @@ func LoadDay(dbPath string, d *time.Time) *timed.WorkingDay {
 	db := openDb(dbPath)
 	defer db.Close()
 
-	row, err := db.Query("SELECT id, day, break_in_m, start, end, note FROM working_days WHERE day=$1", d.Format("2006-01-02"))
+	row, err := db.Query("SELECT id, day, break_in_m, start, end, note FROM working_days WHERE day=?", d.Format("2006-01-02"))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -42,11 +42,10 @@ func UpdateDay(dbPath string, wd timed.WorkingDay) {
 	db := openDb(dbPath)
 	defer db.Close()
 
-	update := "UPDATE working_days SET day=$1, break_in_m=$2, start=$3, end=$4, note=$5 FROM working_days WHERE day=$6"
-	day := wd.Start.Format("2006-01-02")
-	start := wd.Start.Format("03:04:05.000000")
-	end := wd.End.Format("03:04:05.000000")
-	_, err := db.Exec(update, day, wd.Brk, start, end, wd.Note, wd.ID)
+	update := "UPDATE working_days SET break_in_m=?, start=?, end=?, note=? WHERE id=?"
+	start := wd.Start.Format("15:04:05.000000")
+	end := wd.End.Format("15:04:05.000000")
+	_, err := db.Exec(update, wd.Brk, start, end, wd.Note, wd.ID)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -57,10 +56,10 @@ func InsertDay(dbPath string, wd timed.WorkingDay) {
 	db := openDb(dbPath)
 	defer db.Close()
 
-	insert := "INSERT INTO working_days (day, break_in_m, start, end, note) VALUES ($1, $2, $3, $4, $5)"
-	day := wd.Start.Format("2006-01-02")
-	start := wd.Start.Format("03:04:05.000000")
-	end := wd.End.Format("03:04:05.000000")
+	insert := "INSERT INTO working_days (day, break_in_m, start, end, note) VALUES (?, ?, ?, ?, ?)"
+	day := wd.Day.Format("2006-01-02")
+	start := wd.Start.Format("15:04:05.000000")
+	end := wd.End.Format("15:04:05.000000")
 	_, err := db.Exec(insert, day, wd.Brk, start, end, wd.Note)
 	if err != nil {
 		log.Fatal(err)

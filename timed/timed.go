@@ -30,12 +30,12 @@ func New(id int, day string, brk int, start string, end string, note string) Wor
 		log.Fatal(err)
 	}
 
-	s, err := time.Parse("03:04:05.000000", start)
+	s, err := time.Parse("15:04:05.000000", start)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	e, err := time.Parse("03:04:05.000000", end)
+	e, err := time.Parse("15:04:05.000000", end)
 
 	return WorkingDay{
 		id, d,

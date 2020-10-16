@@ -78,12 +78,12 @@ func run(cmd *cobra.Command, args []string) {
 		d = time.Now()
 	}
 
-	s, err := time.Parse("03:04", *start)
+	s, err := time.Parse("15:04", *start)
 	if err != nil && *start != "" {
 		log.Fatal(err)
 	}
 
-	e, err := time.Parse("03:04", *end)
+	e, err := time.Parse("15:04", *end)
 	if err != nil && *end != "" {
 		log.Fatal(err)
 	}
