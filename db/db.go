@@ -9,6 +9,10 @@ import (
 	_ "modernc.org/sqlite" // Import as driver
 )
 
+// ==============
+// ===== db =====
+// ==============
+
 // NewRepo creates and initiates a new repo
 func NewRepo(dbPath string) *Repo {
 	db := openDb(dbPath)
@@ -22,6 +26,10 @@ func openDb(dbPath string) *sql.DB {
 	}
 	return db
 }
+
+// ================
+// ===== REPO =====
+// ================
 
 // Repo represents a DB access layer
 type Repo struct {

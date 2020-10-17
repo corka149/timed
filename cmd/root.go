@@ -34,15 +34,12 @@ import (
 	homedir "github.com/mitchellh/go-homedir"
 )
 
-var cfgFile string
+// ===================
+// ===== GLOBALS =====
+// ===================
 
 var (
-	date  *string
-	start *string
-	end   *string
-
-	brk  *int
-	note *string
+	rootCmdProps = RootCmdProps{}
 
 	rootCmd = &cobra.Command{
 		Use:   "timed",
@@ -57,9 +54,25 @@ var (
 	 \____6____/
 	
 		`,
-		Run: run,
+		Run: func(cmd *cobra.Command, args []string) {
+			Run(rootCmdProps.date, rootCmdProps.start, rootCmdProps.end, rootCmdProps.brk, rootCmdProps.note)
+		},
 	}
 )
+
+// ==================
+// ===== PUBLIC =====
+// ==================
+
+// RootCmdProps represents all local properties of timed
+type RootCmdProps struct {
+	date  *string
+	start *string
+	end   *string
+
+	brk  *int
+	note *string
+}
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
@@ -69,7 +82,9 @@ func Execute() {
 	}
 }
 
-func run(cmd *cobra.Command, args []string) {
+// Run performs the hole flow of the root command of timed.
+func Run(date *string, start *string, end *string, brk *int, note *string) {
+
 	d, err := time.Parse("2006-01-02", *date)
 	if err != nil && *date != "" {
 		log.Fatal(err)
@@ -126,13 +141,17 @@ func run(cmd *cobra.Command, args []string) {
 	}
 }
 
-func init() {
-	date = rootCmd.Flags().StringP("date", "d", "", `Takes the date that should be used. Format: "yyyy-mm-dd" -> E.g. 2019-03-28. (default: today)`)
-	start = rootCmd.Flags().StringP("start", "s", "", `Takes the start time. Format "hh:mm" -> E.g. "08:00". (default: now)`)
-	end = rootCmd.Flags().StringP("end", "e", "", `Parameter for end time. Format "hh:mm" -> E.g. "08:00". (default: now)`)
+// ===================
+// ===== PRIVATE =====
+// ===================
 
-	brk = rootCmd.Flags().IntP("break", "b", -1, "Takes the duration of the break in minutes. (default 0min)")
-	note = rootCmd.Flags().StringP("note", "n", "", "Takes a note and add it to an entry. Default: ''")
+func init() {
+	rootCmdProps.date = rootCmd.Flags().StringP("date", "d", "", `Takes the date that should be used. Format: "yyyy-mm-dd" -> E.g. 2019-03-28. (default: today)`)
+	rootCmdProps.start = rootCmd.Flags().StringP("start", "s", "", `Takes the start time. Format "hh:mm" -> E.g. "08:00". (default: now)`)
+	rootCmdProps.end = rootCmd.Flags().StringP("end", "e", "", `Parameter for end time. Format "hh:mm" -> E.g. "08:00". (default: now)`)
+
+	rootCmdProps.brk = rootCmd.Flags().IntP("break", "b", -1, "Takes the duration of the break in minutes. (default 0min)")
+	rootCmdProps.note = rootCmd.Flags().StringP("note", "n", "", "Takes a note and add it to an entry. Default: ''")
 }
 
 func dbPath() string {
