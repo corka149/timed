@@ -88,7 +88,10 @@ func run(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
-	if wd := db.LoadDay(dbPath(), &d); wd != nil {
+	repo := db.NewRepo(dbPath())
+	defer repo.Close()
+
+	if wd := repo.LoadDay(&d); wd != nil {
 		// Update
 		if *start != "" && s != wd.Start {
 			wd.Start = s
@@ -103,7 +106,7 @@ func run(cmd *cobra.Command, args []string) {
 			wd.Note = *note
 		}
 
-		db.UpdateDay(dbPath(), *wd)
+		repo.UpdateDay(*wd)
 	} else {
 		// Insert
 		b := 0
@@ -119,7 +122,7 @@ func run(cmd *cobra.Command, args []string) {
 
 		newWd := timed.WorkingDay{Day: d, Start: s, End: e, Brk: b, Note: *note}
 
-		db.InsertDay(dbPath(), newWd)
+		repo.InsertDay(newWd)
 	}
 }
 
