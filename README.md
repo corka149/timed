@@ -6,28 +6,34 @@ Manages my working times.
 
 ## Usage
 ```
-Usage: timed [OPTIONS]
+The timed cli helps to managing working times.
+	  _________
+	 /   12    \
+	|     |     |
+	|9    |    3|
+	|      \    |
+	|           |
+	 \____6____/
 
-Options:
-  -i, --init           Initialize database
-  -d, --date TEXT      Takes the date that should be used. Format: "yyyy-mm-
-                       dd" -> E.g. 2019-03-28. Default: today
+Usage:
+  timed [flags]
+  timed [command]
 
-  -s, --start TEXT     Takes the start time. Format "hh:mm" -> E.g. "08:00".
-                       Default: now
+Available Commands:
+  delete      Delete by the provided DATE
+  help        Help about any command
 
-  -e, --end TEXT       Parameter for end time. Format "hh:mm" -> E.g. "08:00".
-                       Default: now
+Flags:
+  -b, --break int      Takes the duration of the break in minutes. (default 0min) (default -1)
+  -d, --date string    Takes the date that should be used. Format: "yyyy-mm-dd" -> E.g. 2019-03-28. (default: today)
+  -e, --end string     Parameter for end time. Format "hh:mm" -> E.g. "08:00". (default: now)
+  -h, --help           help for timed
+  -n, --note string    Takes a note and add it to an entry. Default: ''
+  -s, --start string   Takes the start time. Format "hh:mm" -> E.g. "08:00". (default: now)
 
-  -b, --break INTEGER  Takes the duration of the break in minutes. Default:
-                       0min
-
-  -n, --note TEXT      Takes a note and add it to an entry. Default: ""
-  --delete             Deletes the given date. Has no effect without date
-  --help               Show this message and exit.
+Use "timed [command] --help" for more information about a command.
 
 ```
 
 ## Data
-Timed data is stored in "$HOME/.timed.csv". The columns are structured the following way:
-date, start, end, breaktime, note
+"$HOME/.timed.db" stores the timed data.
