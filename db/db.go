@@ -5,7 +5,6 @@ import (
 	"log"
 	"time"
 
-	"github.com/corka149/timed/timed"
 	_ "modernc.org/sqlite" // Import as driver
 )
 
@@ -33,10 +32,10 @@ func openDb(dbPath string) *sql.DB {
 
 // Repo is an interface for storing working days
 type Repo interface {
-	LoadDay(d *time.Time) *timed.WorkingDay
-	Insert(wd timed.WorkingDay)
-	UpdateDay(wd timed.WorkingDay)
-	Delete(wd timed.WorkingDay)
+	LoadDay(d *time.Time) *WorkingDay
+	Insert(wd WorkingDay)
+	UpdateDay(wd WorkingDay)
+	Delete(wd WorkingDay)
 }
 
 // SqlRepo represents a DB access layer
@@ -45,7 +44,7 @@ type SqlRepo struct {
 }
 
 // LoadDay finds the matching working time entry for a specific date.
-func (r *SqlRepo) LoadDay(d *time.Time) *timed.WorkingDay {
+func (r *SqlRepo) LoadDay(d *time.Time) *WorkingDay {
 
 	row, err := r.db.Query("SELECT id, day, break_in_m, start, end, note FROM working_days WHERE day=?", d.Format("2006-01-02"))
 	if err != nil {
@@ -72,7 +71,7 @@ func (r *SqlRepo) LoadDay(d *time.Time) *timed.WorkingDay {
 			log.Fatal(err)
 		}
 
-		wd := timed.Convert(id, day, brk, start, end, note)
+		wd := Convert(id, day, brk, start, end, note)
 		return &wd
 	}
 
@@ -80,7 +79,7 @@ func (r *SqlRepo) LoadDay(d *time.Time) *timed.WorkingDay {
 }
 
 // UpdateDay updates the values of a working day in the database
-func (r *SqlRepo) UpdateDay(wd timed.WorkingDay) {
+func (r *SqlRepo) UpdateDay(wd WorkingDay) {
 
 	update := "UPDATE working_days SET break_in_m=?, start=?, end=?, note=? WHERE id=?"
 	start := wd.Start.Format("15:04:05.000000")
@@ -92,7 +91,7 @@ func (r *SqlRepo) UpdateDay(wd timed.WorkingDay) {
 }
 
 // Insert adds a new working day to the database
-func (r *SqlRepo) Insert(wd timed.WorkingDay) {
+func (r *SqlRepo) Insert(wd WorkingDay) {
 
 	insert := "INSERT INTO working_days (day, break_in_m, start, end, note) VALUES (?, ?, ?, ?, ?)"
 	day := wd.Day.Format("2006-01-02")
@@ -104,7 +103,7 @@ func (r *SqlRepo) Insert(wd timed.WorkingDay) {
 	}
 }
 
-func (r SqlRepo) Delete(wd timed.WorkingDay) {
+func (r SqlRepo) Delete(wd WorkingDay) {
 
 	del := "DELETE FROM working_days WHERE id=?"
 	result, err := r.db.Exec(del, wd.ID)

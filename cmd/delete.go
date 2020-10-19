@@ -25,7 +25,6 @@ package cmd
 
 import (
 	"github.com/corka149/timed/db"
-	"github.com/corka149/timed/util"
 	"log"
 	"time"
 
@@ -43,7 +42,7 @@ var (
 		Long:  "Delete remove an working time entry forever. The working day will be determined by the provided DATE.",
 		Args:  cobra.MinimumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			repo := db.NewRepo(util.DbPath())
+			repo := db.NewRepo(DbPath())
 			defer repo.Close()
 			RunDelete(args[0], repo)
 		},

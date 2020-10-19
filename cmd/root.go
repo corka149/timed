@@ -24,12 +24,10 @@ THE SOFTWARE.
 package cmd
 
 import (
-	"github.com/corka149/timed/util"
 	"log"
 	"time"
 
 	"github.com/corka149/timed/db"
-	"github.com/corka149/timed/timed"
 	"github.com/spf13/cobra"
 )
 
@@ -54,7 +52,7 @@ var (
 	
 		`,
 		Run: func(cmd *cobra.Command, args []string) {
-			repo := db.NewRepo(util.DbPath())
+			repo := db.NewRepo(DbPath())
 			defer repo.Close()
 			RunTimed(rootCmdProps, repo)
 		},
@@ -133,7 +131,7 @@ func RunTimed(props RootCmdProps, repo db.Repo) {
 			b = *props.brk
 		}
 
-		newWd := timed.WorkingDay{Day: d, Start: s, End: e, Brk: b, Note: *props.note}
+		newWd := db.WorkingDay{Day: d, Start: s, End: e, Brk: b, Note: *props.note}
 
 		repo.Insert(newWd)
 	}

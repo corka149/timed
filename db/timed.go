@@ -1,4 +1,4 @@
-package timed
+package db
 
 import (
 	"fmt"

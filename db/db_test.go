@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/corka149/timed/db"
-	"github.com/corka149/timed/timed"
 )
 
 const dbName = "test_db.db"
@@ -26,7 +25,7 @@ func TestInsertAndLoad(t *testing.T) {
 
 	start := time.Date(2020, 10, 8, 7, 50, 00, 000, time.Now().Location())
 	end := time.Date(2020, 10, 8, 16, 20, 00, 000, time.Now().Location())
-	wd := timed.WorkingDay{Day: start, Start: start, End: end, Brk: 30, Note: "With space"}
+	wd := db.WorkingDay{Day: start, Start: start, End: end, Brk: 30, Note: "With space"}
 
 	repo.Insert(wd)
 
@@ -57,7 +56,7 @@ func TestUpdateAndLoad(t *testing.T) {
 
 	start := time.Date(2018, 10, 8, 7, 50, 00, 000, time.Now().Location())
 	end := time.Date(2018, 10, 8, 16, 20, 00, 000, time.Now().Location())
-	wd := timed.WorkingDay{Day: start, Start: start, End: end, Brk: 30, Note: "With space"}
+	wd := db.WorkingDay{Day: start, Start: start, End: end, Brk: 30, Note: "With space"}
 
 	repo.Insert(wd)
 
@@ -89,7 +88,7 @@ func TestDelete(t *testing.T) {
 
 	start := time.Date(2020, 10, 8, 7, 50, 00, 000, time.Now().Location())
 	end := time.Date(2020, 10, 8, 16, 20, 00, 000, time.Now().Location())
-	wd := timed.WorkingDay{Day: start, Start: start, End: end, Brk: 30, Note: "With space"}
+	wd := db.WorkingDay{Day: start, Start: start, End: end, Brk: 30, Note: "With space"}
 
 	repo.Insert(wd)
 

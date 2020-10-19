@@ -1,5 +1,5 @@
 // util contains shared helper functions
-package util
+package cmd
 
 import (
 	"github.com/mitchellh/go-homedir"
