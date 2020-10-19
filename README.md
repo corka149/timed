@@ -1,6 +1,6 @@
 # Timed
 
-![Python package](https://github.com/corka149/timed/workflows/Python%20package/badge.svg)
+![Go](https://github.com/corka149/timed/workflows/Go/badge.svg)
 
 Manages my working times.
 
