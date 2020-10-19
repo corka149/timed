@@ -23,8 +23,8 @@ func (wd *WorkingDay) String() string {
 	return fmt.Sprintf("%d: Worked from %s to %s taking %d min break (note: %s)", wd.ID, wd.Start, wd.End, wd.Brk, wd.Note)
 }
 
-// New creates a new WorkingDay from query
-func New(id int, day string, brk int, start string, end string, note string) WorkingDay {
+// Convert creates a new WorkingDay from query
+func Convert(id int, day string, brk int, start string, end string, note string) WorkingDay {
 	d, err := time.Parse("2006-01-02", day)
 	if err != nil {
 		log.Fatal(err)

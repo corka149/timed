@@ -55,7 +55,7 @@ func (r *Repo) LoadDay(d *time.Time) *timed.WorkingDay {
 
 		row.Scan(&id, &day, &brk, &start, &end, &note)
 
-		wd := timed.New(id, day, brk, start, end, note)
+		wd := timed.Convert(id, day, brk, start, end, note)
 		return &wd
 	}
 
