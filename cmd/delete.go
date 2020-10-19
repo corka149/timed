@@ -43,7 +43,9 @@ var (
 		Long:  "Delete remove an working time entry forever. The working day will be determined by the provided DATE.",
 		Args:  cobra.MinimumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			RunDelete(args[0])
+			repo := db.NewRepo(util.DbPath())
+			defer repo.Close()
+			RunDelete(args[0], repo)
 		},
 	}
 )
@@ -53,8 +55,7 @@ var (
 // ==================
 
 // RunDelete performs the delete flow
-func RunDelete(date string) {
-	repo := db.NewRepo(util.DbPath())
+func RunDelete(date string, repo db.Repo) {
 
 	d, err := time.Parse("2006-01-02", date)
 	if err != nil {

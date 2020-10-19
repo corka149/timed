@@ -54,7 +54,9 @@ var (
 	
 		`,
 		Run: func(cmd *cobra.Command, args []string) {
-			RunTimed(rootCmdProps.date, rootCmdProps.start, rootCmdProps.end, rootCmdProps.brk, rootCmdProps.note)
+			repo := db.NewRepo(util.DbPath())
+			defer repo.Close()
+			RunTimed(rootCmdProps, repo)
 		},
 	}
 )
@@ -82,59 +84,56 @@ func Execute() {
 }
 
 // RunTimed performs the hole flow of the root command of timed.
-func RunTimed(date *string, start *string, end *string, brk *int, note *string) {
+func RunTimed(props RootCmdProps, repo db.Repo) {
 
-	d, err := time.Parse("2006-01-02", *date)
-	if err != nil && *date != "" {
+	d, err := time.Parse("2006-01-02", *props.date)
+	if err != nil && *props.date != "" {
 		log.Fatal(err)
 	}
-	if *date == "" {
+	if *props.date == "" {
 		d = time.Now()
 	}
 
-	s, err := time.Parse("15:04", *start)
-	if err != nil && *start != "" {
+	s, err := time.Parse("15:04", *props.start)
+	if err != nil && *props.start != "" {
 		log.Fatal(err)
 	}
 
-	e, err := time.Parse("15:04", *end)
-	if err != nil && *end != "" {
+	e, err := time.Parse("15:04", *props.end)
+	if err != nil && *props.end != "" {
 		log.Fatal(err)
 	}
-
-	repo := db.NewRepo(util.DbPath())
-	defer repo.Close()
 
 	if wd := repo.LoadDay(&d); wd != nil {
 		// Update
-		if *start != "" && s != wd.Start {
+		if *props.start != "" && s != wd.Start {
 			wd.Start = s
 		}
-		if *end != "" && e != wd.End {
+		if *props.end != "" && e != wd.End {
 			wd.End = e
 		}
-		if *brk > -1 && *brk != wd.Brk {
-			wd.Brk = *brk
+		if *props.brk > -1 && *props.brk != wd.Brk {
+			wd.Brk = *props.brk
 		}
-		if *note != wd.Note {
-			wd.Note = *note
+		if *props.note != wd.Note {
+			wd.Note = *props.note
 		}
 
 		repo.UpdateDay(*wd)
 	} else {
 		// Insert
 		b := 0
-		if *start == "" {
+		if *props.start == "" {
 			s = time.Now()
 		}
-		if *end == "" {
+		if *props.end == "" {
 			e = time.Now()
 		}
-		if *brk > -1 {
-			b = *brk
+		if *props.brk > -1 {
+			b = *props.brk
 		}
 
-		newWd := timed.WorkingDay{Day: d, Start: s, End: e, Brk: b, Note: *note}
+		newWd := timed.WorkingDay{Day: d, Start: s, End: e, Brk: b, Note: *props.note}
 
 		repo.Insert(newWd)
 	}

@@ -14,9 +14,9 @@ import (
 // ==============
 
 // NewRepo creates and initiates a new repo
-func NewRepo(dbPath string) *Repo {
+func NewRepo(dbPath string) *SqlRepo {
 	db := openDb(dbPath)
-	return &Repo{db}
+	return &SqlRepo{db}
 }
 
 func openDb(dbPath string) *sql.DB {
@@ -31,13 +31,21 @@ func openDb(dbPath string) *sql.DB {
 // ===== REPO =====
 // ================
 
-// Repo represents a DB access layer
-type Repo struct {
+// Repo is an interface for storing working days
+type Repo interface {
+	LoadDay(d *time.Time) *timed.WorkingDay
+	Insert(wd timed.WorkingDay)
+	UpdateDay(wd timed.WorkingDay)
+	Delete(wd timed.WorkingDay)
+}
+
+// SqlRepo represents a DB access layer
+type SqlRepo struct {
 	db *sql.DB
 }
 
 // LoadDay finds the matching working time entry for a specific date.
-func (r *Repo) LoadDay(d *time.Time) *timed.WorkingDay {
+func (r *SqlRepo) LoadDay(d *time.Time) *timed.WorkingDay {
 
 	row, err := r.db.Query("SELECT id, day, break_in_m, start, end, note FROM working_days WHERE day=?", d.Format("2006-01-02"))
 	if err != nil {
@@ -72,7 +80,7 @@ func (r *Repo) LoadDay(d *time.Time) *timed.WorkingDay {
 }
 
 // UpdateDay updates the values of a working day in the database
-func (r *Repo) UpdateDay(wd timed.WorkingDay) {
+func (r *SqlRepo) UpdateDay(wd timed.WorkingDay) {
 
 	update := "UPDATE working_days SET break_in_m=?, start=?, end=?, note=? WHERE id=?"
 	start := wd.Start.Format("15:04:05.000000")
@@ -84,7 +92,7 @@ func (r *Repo) UpdateDay(wd timed.WorkingDay) {
 }
 
 // Insert adds a new working day to the database
-func (r *Repo) Insert(wd timed.WorkingDay) {
+func (r *SqlRepo) Insert(wd timed.WorkingDay) {
 
 	insert := "INSERT INTO working_days (day, break_in_m, start, end, note) VALUES (?, ?, ?, ?, ?)"
 	day := wd.Day.Format("2006-01-02")
@@ -96,7 +104,7 @@ func (r *Repo) Insert(wd timed.WorkingDay) {
 	}
 }
 
-func (r Repo) Delete(wd timed.WorkingDay) {
+func (r SqlRepo) Delete(wd timed.WorkingDay) {
 
 	del := "DELETE FROM working_days WHERE id=?"
 	result, err := r.db.Exec(del, wd.ID)
@@ -113,7 +121,7 @@ func (r Repo) Delete(wd timed.WorkingDay) {
 }
 
 // Close shutdown the DB connection
-func (r *Repo) Close() {
+func (r *SqlRepo) Close() {
 	err := r.db.Close()
 	if err != nil {
 		log.Fatal(err)
