@@ -1,18 +1,16 @@
-package db_test
+package db
 
 import (
 	"database/sql"
 	"os"
 	"testing"
 	"time"
-
-	"github.com/corka149/timed/db"
 )
 
-const dbName = "test_db.db"
+const dbName = "test_db"
 
 func init() {
-	os.Remove("test_db.db")
+	os.Remove("test_db")
 }
 
 func TestInsertAndLoad(t *testing.T) {
@@ -20,12 +18,12 @@ func TestInsertAndLoad(t *testing.T) {
 	createDb(t, dbName)
 	defer os.Remove(dbName)
 
-	repo := db.NewRepo(dbName)
+	repo := NewRepo(dbName)
 	defer repo.Close()
 
 	start := time.Date(2020, 10, 8, 7, 50, 00, 000, time.Now().Location())
 	end := time.Date(2020, 10, 8, 16, 20, 00, 000, time.Now().Location())
-	wd := db.WorkingDay{Day: start, Start: start, End: end, Brk: 30, Note: "With space"}
+	wd := WorkingDay{Day: start, Start: start, End: end, Brk: 30, Note: "With space"}
 
 	repo.Insert(wd)
 
@@ -51,12 +49,12 @@ func TestUpdateAndLoad(t *testing.T) {
 	createDb(t, dbName)
 	defer os.Remove(dbName)
 
-	repo := db.NewRepo(dbName)
+	repo := NewRepo(dbName)
 	defer repo.Close()
 
 	start := time.Date(2018, 10, 8, 7, 50, 00, 000, time.Now().Location())
 	end := time.Date(2018, 10, 8, 16, 20, 00, 000, time.Now().Location())
-	wd := db.WorkingDay{Day: start, Start: start, End: end, Brk: 30, Note: "With space"}
+	wd := WorkingDay{Day: start, Start: start, End: end, Brk: 30, Note: "With space"}
 
 	repo.Insert(wd)
 
@@ -83,12 +81,12 @@ func TestDelete(t *testing.T) {
 	createDb(t, dbName)
 	defer os.Remove(dbName)
 
-	repo := db.NewRepo(dbName)
+	repo := NewRepo(dbName)
 	defer repo.Close()
 
 	start := time.Date(2020, 10, 8, 7, 50, 00, 000, time.Now().Location())
 	end := time.Date(2020, 10, 8, 16, 20, 00, 000, time.Now().Location())
-	wd := db.WorkingDay{Day: start, Start: start, End: end, Brk: 30, Note: "With space"}
+	wd := WorkingDay{Day: start, Start: start, End: end, Brk: 30, Note: "With space"}
 
 	repo.Insert(wd)
 

@@ -44,17 +44,17 @@ var (
 		Run: func(cmd *cobra.Command, args []string) {
 			repo := db.NewRepo(DbPath())
 			defer repo.Close()
-			RunDelete(args[0], repo)
+			runDelete(args[0], repo)
 		},
 	}
 )
 
-// ==================
-// ===== PUBLIC =====
-// ==================
+// ===================
+// ===== PRIVATE =====
+// ===================
 
-// RunDelete performs the delete flow
-func RunDelete(date string, repo db.Repo) {
+// runDelete performs the delete flow
+func runDelete(date string, repo db.Repo) {
 
 	d, err := time.Parse("2006-01-02", date)
 	if err != nil {
@@ -69,10 +69,6 @@ func RunDelete(date string, repo db.Repo) {
 	repo.Delete(*wd)
 	log.Printf("Deleted successful '%s'", date)
 }
-
-// ===================
-// ===== PRIVATE =====
-// ===================
 
 func init() {
 	rootCmd.AddCommand(deleteCmd)

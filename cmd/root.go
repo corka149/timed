@@ -54,7 +54,7 @@ var (
 		Run: func(cmd *cobra.Command, args []string) {
 			repo := db.NewRepo(DbPath())
 			defer repo.Close()
-			RunTimed(rootCmdProps, repo)
+			runTimed(rootCmdProps, repo)
 		},
 	}
 )
@@ -81,8 +81,12 @@ func Execute() {
 	}
 }
 
-// RunTimed performs the hole flow of the root command of timed.
-func RunTimed(props RootCmdProps, repo db.Repo) {
+// ===================
+// ===== PRIVATE =====
+// ===================
+
+// runTimed performs the hole flow of the root command of timed.
+func runTimed(props RootCmdProps, repo db.Repo) {
 
 	d, err := time.Parse("2006-01-02", *props.date)
 	if err != nil && *props.date != "" {
@@ -136,10 +140,6 @@ func RunTimed(props RootCmdProps, repo db.Repo) {
 		repo.Insert(newWd)
 	}
 }
-
-// ===================
-// ===== PRIVATE =====
-// ===================
 
 func init() {
 	rootCmdProps.date = rootCmd.Flags().StringP("date", "d", "", `Takes the date that should be used. Format: "yyyy-mm-dd" -> E.g. 2019-03-28. (default: today)`)
