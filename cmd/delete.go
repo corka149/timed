@@ -24,31 +24,56 @@ THE SOFTWARE.
 package cmd
 
 import (
-	"fmt"
+	"github.com/corka149/timed/db"
+	"github.com/corka149/timed/util"
+	"log"
+	"time"
 
 	"github.com/spf13/cobra"
 )
 
-// deleteCmd represents the delete command
-var deleteCmd = &cobra.Command{
-	Use:   "delete",
-	Short: "Delete an entry",
-	Long:  "Delete remove an working time entry forever",
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("delete called")
-	},
+// ===================
+// ===== GLOBALS =====
+// ===================
+
+var (
+	deleteCmd = &cobra.Command{
+		Use:   "delete",
+		Short: "Delete by the provided DATE",
+		Long:  "Delete remove an working time entry forever. The working day will be determined by the provided DATE.",
+		Args:  cobra.MinimumNArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			RunDelete(args[0])
+		},
+	}
+)
+
+// ==================
+// ===== PUBLIC =====
+// ==================
+
+// RunDelete performs the delete flow
+func RunDelete(date string) {
+	repo := db.NewRepo(util.DbPath())
+
+	d, err := time.Parse("2006-01-02", date)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	wd := repo.LoadDay(&d)
+	if wd == nil {
+		log.Fatal("No working day found")
+	}
+
+	repo.Delete(*wd)
+	log.Printf("Deleted successful '%s'", date)
 }
+
+// ===================
+// ===== PRIVATE =====
+// ===================
 
 func init() {
 	rootCmd.AddCommand(deleteCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// deleteCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// deleteCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

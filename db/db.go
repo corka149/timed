@@ -43,7 +43,12 @@ func (r *Repo) LoadDay(d *time.Time) *timed.WorkingDay {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer row.Close()
+	defer func() {
+		err := row.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
 
 	if row.Next() {
 		var id int
@@ -53,7 +58,11 @@ func (r *Repo) LoadDay(d *time.Time) *timed.WorkingDay {
 		var end string
 		var note string
 
-		row.Scan(&id, &day, &brk, &start, &end, &note)
+		err := row.Scan(&id, &day, &brk, &start, &end, &note)
+
+		if err != nil {
+			log.Fatal(err)
+		}
 
 		wd := timed.Convert(id, day, brk, start, end, note)
 		return &wd
@@ -74,8 +83,8 @@ func (r *Repo) UpdateDay(wd timed.WorkingDay) {
 	}
 }
 
-// InsertDay adds a new working day to the database
-func (r *Repo) InsertDay(wd timed.WorkingDay) {
+// Insert adds a new working day to the database
+func (r *Repo) Insert(wd timed.WorkingDay) {
 
 	insert := "INSERT INTO working_days (day, break_in_m, start, end, note) VALUES (?, ?, ?, ?, ?)"
 	day := wd.Day.Format("2006-01-02")
@@ -87,7 +96,26 @@ func (r *Repo) InsertDay(wd timed.WorkingDay) {
 	}
 }
 
+func (r Repo) Delete(wd timed.WorkingDay) {
+
+	del := "DELETE FROM working_days WHERE id=?"
+	result, err := r.db.Exec(del, wd.ID)
+	if err != nil {
+		log.Fatal(err)
+	}
+	rows, err := result.RowsAffected()
+	if err != nil {
+		log.Fatal(err)
+	}
+	if rows != 1 {
+		log.Fatalf("Delete %d rows", rows)
+	}
+}
+
 // Close shutdown the DB connection
 func (r *Repo) Close() {
-	r.db.Close()
+	err := r.db.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
 }

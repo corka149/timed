@@ -24,14 +24,13 @@ THE SOFTWARE.
 package cmd
 
 import (
+	"github.com/corka149/timed/util"
 	"log"
 	"time"
 
 	"github.com/corka149/timed/db"
 	"github.com/corka149/timed/timed"
 	"github.com/spf13/cobra"
-
-	homedir "github.com/mitchellh/go-homedir"
 )
 
 // ===================
@@ -55,7 +54,7 @@ var (
 	
 		`,
 		Run: func(cmd *cobra.Command, args []string) {
-			Run(rootCmdProps.date, rootCmdProps.start, rootCmdProps.end, rootCmdProps.brk, rootCmdProps.note)
+			RunTimed(rootCmdProps.date, rootCmdProps.start, rootCmdProps.end, rootCmdProps.brk, rootCmdProps.note)
 		},
 	}
 )
@@ -82,8 +81,8 @@ func Execute() {
 	}
 }
 
-// Run performs the hole flow of the root command of timed.
-func Run(date *string, start *string, end *string, brk *int, note *string) {
+// RunTimed performs the hole flow of the root command of timed.
+func RunTimed(date *string, start *string, end *string, brk *int, note *string) {
 
 	d, err := time.Parse("2006-01-02", *date)
 	if err != nil && *date != "" {
@@ -103,7 +102,7 @@ func Run(date *string, start *string, end *string, brk *int, note *string) {
 		log.Fatal(err)
 	}
 
-	repo := db.NewRepo(dbPath())
+	repo := db.NewRepo(util.DbPath())
 	defer repo.Close()
 
 	if wd := repo.LoadDay(&d); wd != nil {
@@ -137,7 +136,7 @@ func Run(date *string, start *string, end *string, brk *int, note *string) {
 
 		newWd := timed.WorkingDay{Day: d, Start: s, End: e, Brk: b, Note: *note}
 
-		repo.InsertDay(newWd)
+		repo.Insert(newWd)
 	}
 }
 
@@ -152,12 +151,4 @@ func init() {
 
 	rootCmdProps.brk = rootCmd.Flags().IntP("break", "b", -1, "Takes the duration of the break in minutes. (default 0min)")
 	rootCmdProps.note = rootCmd.Flags().StringP("note", "n", "", "Takes a note and add it to an entry. Default: ''")
-}
-
-func dbPath() string {
-	home, err := homedir.Dir()
-	if err != nil {
-		log.Fatal(err)
-	}
-	return home + "/.timed.db"
 }

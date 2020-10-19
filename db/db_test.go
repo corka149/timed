@@ -10,8 +10,13 @@ import (
 	"github.com/corka149/timed/timed"
 )
 
+const dbName = "test_db.db"
+
+func init() {
+	os.Remove("test_db.db")
+}
+
 func TestInsertAndLoad(t *testing.T) {
-	dbName := "test_db.db"
 
 	createDb(t, dbName)
 	defer os.Remove(dbName)
@@ -23,7 +28,7 @@ func TestInsertAndLoad(t *testing.T) {
 	end := time.Date(2020, 10, 8, 16, 20, 00, 000, time.Now().Location())
 	wd := timed.WorkingDay{Day: start, Start: start, End: end, Brk: 30, Note: "With space"}
 
-	repo.InsertDay(wd)
+	repo.Insert(wd)
 
 	wdFromDb := repo.LoadDay(&start)
 
@@ -43,7 +48,6 @@ func TestInsertAndLoad(t *testing.T) {
 }
 
 func TestUpdateAndLoad(t *testing.T) {
-	dbName := "test_db.db"
 
 	createDb(t, dbName)
 	defer os.Remove(dbName)
@@ -55,7 +59,7 @@ func TestUpdateAndLoad(t *testing.T) {
 	end := time.Date(2018, 10, 8, 16, 20, 00, 000, time.Now().Location())
 	wd := timed.WorkingDay{Day: start, Start: start, End: end, Brk: 30, Note: "With space"}
 
-	repo.InsertDay(wd)
+	repo.Insert(wd)
 
 	wd.Brk = 45
 	wd.Note = "NotSpace"
@@ -75,8 +79,37 @@ func TestUpdateAndLoad(t *testing.T) {
 	}
 }
 
+func TestDelete(t *testing.T) {
+
+	createDb(t, dbName)
+	defer os.Remove(dbName)
+
+	repo := db.NewRepo(dbName)
+	defer repo.Close()
+
+	start := time.Date(2020, 10, 8, 7, 50, 00, 000, time.Now().Location())
+	end := time.Date(2020, 10, 8, 16, 20, 00, 000, time.Now().Location())
+	wd := timed.WorkingDay{Day: start, Start: start, End: end, Brk: 30, Note: "With space"}
+
+	repo.Insert(wd)
+
+	wdFromDb := repo.LoadDay(&start)
+
+	if wdFromDb == nil {
+		t.Error("Could not load working day from DB")
+	}
+
+	repo.Delete(*wdFromDb)
+
+	wdFromDb = repo.LoadDay(&start)
+
+	if wdFromDb != nil {
+		t.Fatal("Did not delete working day")
+	}
+}
+
 func createDb(t *testing.T, path string) {
-	db, err := sql.Open("sqlite", path)
+	dbP, err := sql.Open("sqlite", path)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -91,6 +124,6 @@ func createDb(t *testing.T, path string) {
 		note VARCHAR(100) not null
 	);
 	`
-	db.Exec(createTbl)
-	db.Close()
+	dbP.Exec(createTbl)
+	dbP.Close()
 }
