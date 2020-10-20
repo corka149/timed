@@ -63,7 +63,8 @@ func runDelete(date string, repo db.Repo) {
 
 	wd := repo.LoadDay(&d)
 	if wd == nil {
-		log.Fatal("No working day found")
+		log.Print("No working day found")
+		return
 	}
 
 	repo.Delete(*wd)
