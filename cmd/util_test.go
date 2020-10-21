@@ -33,3 +33,7 @@ func (r FakeRepo) Delete(wd db.WorkingDay) {
 	date := wd.Day.Format("2006-01-02")
 	delete(r.data, date)
 }
+
+func (r FakeRepo) Overtime() int {
+	return 0
+}
