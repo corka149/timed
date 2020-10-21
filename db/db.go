@@ -36,6 +36,7 @@ type Repo interface {
 	Insert(wd WorkingDay)
 	UpdateDay(wd WorkingDay)
 	Delete(wd WorkingDay)
+	Overtime() int
 }
 
 // SqlRepo represents a DB access layer
@@ -50,12 +51,7 @@ func (r *SqlRepo) LoadDay(d *time.Time) *WorkingDay {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer func() {
-		err := row.Close()
-		if err != nil {
-			log.Fatal(err)
-		}
-	}()
+	defer closeRow(row)
 
 	if row.Next() {
 		var id int
@@ -103,7 +99,8 @@ func (r *SqlRepo) Insert(wd WorkingDay) {
 	}
 }
 
-func (r SqlRepo) Delete(wd WorkingDay) {
+// Delete removes a working day from the database
+func (r *SqlRepo) Delete(wd WorkingDay) {
 
 	del := "DELETE FROM working_days WHERE id=?"
 	result, err := r.db.Exec(del, wd.ID)
@@ -119,9 +116,40 @@ func (r SqlRepo) Delete(wd WorkingDay) {
 	}
 }
 
+// Overtime calculates the overtime in minutes
+func (r *SqlRepo) Overtime() int {
+	overtStmt := `
+	SELECT SUM((strftime('%s', end) - strftime('%s', start) - break_in_m * 60) / 60)
+	 - (COUNT(*) * 8 * 60) AS overtime_in_min
+	FROM working_days;
+	`
+
+	row, err := r.db.Query(overtStmt)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer closeRow(row)
+
+	if !row.Next() {
+		log.Fatal("Could not calculate overtime")
+	}
+	var overTime int
+	if err = row.Scan(&overTime); err != nil {
+		log.Fatal(err)
+	}
+	return overTime
+}
+
 // Close shutdown the DB connection
 func (r *SqlRepo) Close() {
 	err := r.db.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func closeRow(row *sql.Rows) {
+	err := row.Close()
 	if err != nil {
 		log.Fatal(err)
 	}

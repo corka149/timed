@@ -24,7 +24,9 @@ THE SOFTWARE.
 package cmd
 
 import (
+	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/corka149/timed/db"
@@ -143,7 +145,32 @@ func runRoot(props RootCmdProps, repo db.Repo) error {
 
 		repo.Insert(newWd)
 	}
+
+	report := createReport(repo)
+	log.Print(report)
 	return nil
+}
+
+func createReport(repo db.Repo) string {
+	b := strings.Builder{}
+
+	// Worked today?
+	t := time.Now()
+	if wd := repo.LoadDay(&t); wd != nil {
+		diff := wd.End.Sub(wd.Start)
+		workedToday := fmt.Sprintf("💪 Worked today %s\n", diff)
+		if _, err := b.WriteString(workedToday); err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	// Overtime in hours?
+	overtime := repo.Overtime()
+	oInHour := float64(overtime) / 60
+	oStr := fmt.Sprintf("⏰  Total overtime %.2f hours", oInHour)
+	b.WriteString(oStr)
+
+	return b.String()
 }
 
 func init() {
