@@ -53,8 +53,12 @@ var (
 		`,
 		Run: func(cmd *cobra.Command, args []string) {
 			repo := db.NewRepo(DbPath())
-			defer repo.Close()
-			runTimed(rootCmdProps, repo)
+			err := runRoot(rootCmdProps, repo)
+			repo.Close()
+
+			if err != nil {
+				log.Fatal(err)
+			}
 		},
 	}
 )
@@ -65,12 +69,12 @@ var (
 
 // RootCmdProps represents all local properties of timed
 type RootCmdProps struct {
-	date  *string
-	start *string
-	end   *string
+	date  string
+	start string
+	end   string
 
-	brk  *int
-	note *string
+	brk  int
+	note string
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -85,67 +89,68 @@ func Execute() {
 // ===== PRIVATE =====
 // ===================
 
-// runTimed performs the hole flow of the root command of timed.
-func runTimed(props RootCmdProps, repo db.Repo) {
+// runRoot performs the hole flow of the root command of timed.
+func runRoot(props RootCmdProps, repo db.Repo) error {
 
-	d, err := time.Parse("2006-01-02", *props.date)
-	if err != nil && *props.date != "" {
-		log.Fatal(err)
+	d, err := time.Parse("2006-01-02", props.date)
+	if err != nil && props.date != "" {
+		return err
 	}
-	if *props.date == "" {
+	if props.date == "" {
 		d = time.Now()
 	}
 
-	s, err := time.Parse("15:04", *props.start)
-	if err != nil && *props.start != "" {
-		log.Fatal(err)
+	s, err := time.Parse("15:04", props.start)
+	if err != nil && props.start != "" {
+		return err
 	}
 
-	e, err := time.Parse("15:04", *props.end)
-	if err != nil && *props.end != "" {
-		log.Fatal(err)
+	e, err := time.Parse("15:04", props.end)
+	if err != nil && props.end != "" {
+		return err
 	}
 
 	if wd := repo.LoadDay(&d); wd != nil {
 		// Update
-		if *props.start != "" && s != wd.Start {
+		if props.start != "" && s != wd.Start {
 			wd.Start = s
 		}
-		if *props.end != "" && e != wd.End {
+		if props.end != "" && e != wd.End {
 			wd.End = e
 		}
-		if *props.brk > -1 && *props.brk != wd.Brk {
-			wd.Brk = *props.brk
+		if props.brk > -1 && props.brk != wd.Brk {
+			wd.Brk = props.brk
 		}
-		if *props.note != wd.Note {
-			wd.Note = *props.note
+		if props.note != wd.Note {
+			wd.Note = props.note
 		}
 
 		repo.UpdateDay(*wd)
 	} else {
 		// Insert
 		b := 0
-		if *props.start == "" {
+		if props.start == "" {
 			s = time.Now()
 		}
-		if *props.end == "" {
+		if props.end == "" {
 			e = time.Now()
 		}
-		if *props.brk > -1 {
-			b = *props.brk
+		if props.brk > -1 {
+			b = props.brk
 		}
 
-		newWd := db.WorkingDay{Day: d, Start: s, End: e, Brk: b, Note: *props.note}
+		newWd := db.WorkingDay{Day: d, Start: s, End: e, Brk: b, Note: props.note}
 
 		repo.Insert(newWd)
 	}
+	return nil
 }
 
 func init() {
-	rootCmdProps.date = rootCmd.Flags().StringP("date", "d", "", `Takes the date that should be used. Format: "yyyy-mm-dd" -> E.g. 2019-03-28. (default: today)`)
-	rootCmdProps.start = rootCmd.Flags().StringP("start", "s", "", `Takes the start time. Format "hh:mm" -> E.g. "08:00". (default: now)`)
-	rootCmdProps.end = rootCmd.Flags().StringP("end", "e", "", `Parameter for end time. Format "hh:mm" -> E.g. "08:00". (default: now)`)
+	rootCmd.Flags().StringVarP(&rootCmdProps.date, "date", "d", "", `Takes the date that should be used. Format: "yyyy-mm-dd" -> E.g. 2019-03-28. (default: today)`)
+	rootCmd.Flags().StringVarP(&rootCmdProps.start, "start", "s", "", `Takes the start time. Format "hh:mm" -> E.g. "08:00". (default: now)`)
+	rootCmd.Flags().StringVarP(&rootCmdProps.end, "end", "e", "", `Parameter for end time. Format "hh:mm" -> E.g. "08:00". (default: now)`)
 
-	rootCmdProps.brk = rootCmd.Flags().IntP("break", "b", -1, "Takes the duration of the break in minutes. (default 0min)")
-	rootCmdProps.note = rootCmd.Flags().StringP("note", "n", "", "Takes a note and add it to an entry. Default: ''")
+	rootCmd.Flags().IntVarP(&rootCmdProps.brk, "break", "b", -1, "Takes the duration of the break in minutes. (default 0min)")
+	rootCmd.Flags().StringVarP(&rootCmdProps.note, "note", "n", "", "Takes a note and add it to an entry. Default: ''")
 }

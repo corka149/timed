@@ -2,8 +2,6 @@ package cmd
 
 import (
 	"github.com/corka149/timed/db"
-	"log"
-	"strings"
 	"testing"
 	"time"
 )
@@ -18,7 +16,10 @@ func TestRunDelete(t *testing.T) {
 
 	repo.Insert(wd)
 
-	runDelete("2018-10-08", &repo)
+	err := runDelete("2018-10-08", &repo)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	wdFromDb := repo.LoadDay(&wd.Day)
 
@@ -27,42 +28,14 @@ func TestRunDelete(t *testing.T) {
 			" did not delete working day")
 	}
 
-	writer := &strings.Builder{}
-	log.SetOutput(writer)
+	err = runDelete("2018-10-08", &repo)
 
-	runDelete("2018-10-08", &repo)
-
-	lOut := writer.String()
-	if !strings.Contains(lOut, "No working day found") {
+	if err == nil || err.Error() != "no working day found" {
 		t.Fatal("Delete cmd does not announce fail of not finding a not existing working day")
 	}
-}
 
-type FakeRepo struct {
-	data map[string]db.WorkingDay
-}
-
-func (r *FakeRepo) LoadDay(d *time.Time) *db.WorkingDay {
-	date := d.Format("2006-01-02")
-	wd, ok := r.data[date]
-	if ok {
-		return &wd
-	} else {
-		return nil
+	err = runDelete("2018-10-32", &repo)
+	if err == nil {
+		t.Fatal("Expected parse error")
 	}
-}
-
-func (r *FakeRepo) UpdateDay(wd db.WorkingDay) {
-	date := wd.Day.Format("2006-01-02")
-	r.data[date] = wd
-}
-
-func (r *FakeRepo) Insert(wd db.WorkingDay) {
-	date := wd.Day.Format("2006-01-02")
-	r.data[date] = wd
-}
-
-func (r FakeRepo) Delete(wd db.WorkingDay) {
-	date := wd.Day.Format("2006-01-02")
-	delete(r.data, date)
 }

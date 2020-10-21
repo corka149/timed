@@ -24,6 +24,7 @@ THE SOFTWARE.
 package cmd
 
 import (
+	"errors"
 	"github.com/corka149/timed/db"
 	"log"
 	"time"
@@ -43,8 +44,12 @@ var (
 		Args:  cobra.MinimumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			repo := db.NewRepo(DbPath())
-			defer repo.Close()
-			runDelete(args[0], repo)
+			err := runDelete(args[0], repo)
+			repo.Close()
+
+			if err != nil {
+				log.Fatal(err)
+			}
 		},
 	}
 )
@@ -54,21 +59,21 @@ var (
 // ===================
 
 // runDelete performs the delete flow
-func runDelete(date string, repo db.Repo) {
+func runDelete(date string, repo db.Repo) error {
 
 	d, err := time.Parse("2006-01-02", date)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	wd := repo.LoadDay(&d)
 	if wd == nil {
-		log.Print("No working day found")
-		return
+		return errors.New("no working day found")
 	}
 
 	repo.Delete(*wd)
 	log.Printf("Deleted successful '%s'", date)
+	return nil
 }
 
 func init() {
