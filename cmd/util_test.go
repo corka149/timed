@@ -35,5 +35,5 @@ func (r FakeRepo) Delete(wd db.WorkingDay) {
 }
 
 func (r FakeRepo) Overtime() int {
-	return 0
+	return 123
 }

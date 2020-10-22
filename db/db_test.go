@@ -105,6 +105,26 @@ func TestDelete(t *testing.T) {
 	}
 }
 
+func TestSqlRepo_Overtime(t *testing.T) {
+
+	createDb(t, dbName)
+	defer os.Remove(dbName)
+
+	repo := NewRepo(dbName)
+	defer repo.Close()
+
+	start := time.Date(2020, 10, 8, 7, 50, 00, 000, time.Now().Location())
+	end := time.Date(2020, 10, 8, 16, 50, 00, 000, time.Now().Location())
+	wd := WorkingDay{Day: start, Start: start, End: end, Brk: 30, Note: "With space"}
+
+	repo.Insert(wd)
+	overtime := repo.Overtime()
+
+	if overtime != 30 {
+		t.Fatalf("Expected '%d' but got '%d'", 30, overtime)
+	}
+}
+
 func createDb(t *testing.T, path string) {
 	dbP, err := sql.Open("sqlite", path)
 	if err != nil {

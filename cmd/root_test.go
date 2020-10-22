@@ -70,3 +70,24 @@ func TestRunRootWithErrors(t *testing.T) {
 		t.Fatal("No error was returned hence an invalid end date was passed")
 	}
 }
+
+func TestCreateReport(t *testing.T) {
+	repo := FakeRepo{make(map[string]db.WorkingDay)}
+
+	// Not worked today
+	report := createReport(&repo)
+	if report != "⏰  Total overtime 2.05 hours" {
+		t.Fatalf("Did not create report correctly overtime: Got '%s'", report)
+	}
+
+	// Worked today
+	tNow := time.Now()
+	start := time.Date(tNow.Year(), tNow.Month(), tNow.Day(), 7, 50, 00, 000, time.Now().Location())
+	end := time.Date(tNow.Year(), tNow.Month(), tNow.Day(), 16, 20, 00, 000, time.Now().Location())
+	wd := db.WorkingDay{Day: start, Start: start, End: end, Brk: 30, Note: "With space"}
+	repo.Insert(wd)
+	report = createReport(&repo)
+	if report != "💪 Worked today 8h30m0s\n⏰  Total overtime 2.05 hours" {
+		t.Fatalf("Did not create report correctly overtime or worked hours today: Got '%s'", report)
+	}
+}
