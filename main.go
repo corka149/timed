@@ -23,10 +23,8 @@ package main
 
 import (
 	"github.com/corka149/timed/cmd"
-	"log"
 )
 
 func main() {
-	log.SetFlags(0)
 	cmd.Execute()
 }

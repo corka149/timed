@@ -2,9 +2,9 @@ package db
 
 import (
 	"database/sql"
-	"log"
 	"time"
 
+	jww "github.com/spf13/jwalterweatherman"
 	_ "modernc.org/sqlite" // Import as driver
 )
 
@@ -21,7 +21,7 @@ func NewRepo(dbPath string) *SqlRepo {
 func openDb(dbPath string) *sql.DB {
 	db, err := sql.Open("sqlite", dbPath)
 	if err != nil {
-		log.Fatal(err)
+		jww.ERROR.Fatal(err)
 	}
 	return db
 }
@@ -49,7 +49,7 @@ func (r *SqlRepo) LoadDay(d *time.Time) *WorkingDay {
 
 	row, err := r.db.Query("SELECT id, day, break_in_m, start, end, note FROM working_days WHERE day=?", d.Format("2006-01-02"))
 	if err != nil {
-		log.Fatal(err)
+		jww.ERROR.Fatal(err)
 	}
 	defer closeRow(row)
 
@@ -64,7 +64,7 @@ func (r *SqlRepo) LoadDay(d *time.Time) *WorkingDay {
 		err := row.Scan(&id, &day, &brk, &start, &end, &note)
 
 		if err != nil {
-			log.Fatal(err)
+			jww.ERROR.Fatal(err)
 		}
 
 		wd := Convert(id, day, brk, start, end, note)
@@ -82,7 +82,7 @@ func (r *SqlRepo) UpdateDay(wd WorkingDay) {
 	end := wd.End.Format("15:04:05.000000")
 	_, err := r.db.Exec(update, wd.Brk, start, end, wd.Note, wd.ID)
 	if err != nil {
-		log.Fatal(err)
+		jww.ERROR.Fatal(err)
 	}
 }
 
@@ -95,7 +95,7 @@ func (r *SqlRepo) Insert(wd WorkingDay) {
 	end := wd.End.Format("15:04:05.000000")
 	_, err := r.db.Exec(insert, day, wd.Brk, start, end, wd.Note)
 	if err != nil {
-		log.Fatal(err)
+		jww.ERROR.Fatal(err)
 	}
 }
 
@@ -105,14 +105,14 @@ func (r *SqlRepo) Delete(wd WorkingDay) {
 	del := "DELETE FROM working_days WHERE id=?"
 	result, err := r.db.Exec(del, wd.ID)
 	if err != nil {
-		log.Fatal(err)
+		jww.ERROR.Fatal(err)
 	}
 	rows, err := result.RowsAffected()
 	if err != nil {
-		log.Fatal(err)
+		jww.ERROR.Fatal(err)
 	}
 	if rows != 1 {
-		log.Fatalf("Delete %d rows", rows)
+		jww.ERROR.Fatalf("Delete %d rows", rows)
 	}
 }
 
@@ -126,16 +126,16 @@ func (r *SqlRepo) Overtime() int {
 
 	row, err := r.db.Query(overtStmt)
 	if err != nil {
-		log.Fatal(err)
+		jww.ERROR.Fatal(err)
 	}
 	defer closeRow(row)
 
 	if !row.Next() {
-		log.Fatal("Could not calculate overtime")
+		jww.ERROR.Fatal("Could not calculate overtime")
 	}
 	var overTime int
 	if err = row.Scan(&overTime); err != nil {
-		log.Fatal(err)
+		jww.ERROR.Fatal(err)
 	}
 	return overTime
 }
@@ -144,13 +144,13 @@ func (r *SqlRepo) Overtime() int {
 func (r *SqlRepo) Close() {
 	err := r.db.Close()
 	if err != nil {
-		log.Fatal(err)
+		jww.ERROR.Fatal(err)
 	}
 }
 
 func closeRow(row *sql.Rows) {
 	err := row.Close()
 	if err != nil {
-		log.Fatal(err)
+		jww.ERROR.Fatal(err)
 	}
 }

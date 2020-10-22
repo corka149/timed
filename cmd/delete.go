@@ -26,10 +26,10 @@ package cmd
 import (
 	"errors"
 	"github.com/corka149/timed/db"
-	"log"
 	"time"
 
 	"github.com/spf13/cobra"
+	jww "github.com/spf13/jwalterweatherman"
 )
 
 // ===================
@@ -48,7 +48,7 @@ var (
 			repo.Close()
 
 			if err != nil {
-				log.Fatal(err)
+				jww.ERROR.Fatal(err)
 			}
 		},
 	}
@@ -72,7 +72,7 @@ func runDelete(date string, repo db.Repo) error {
 	}
 
 	repo.Delete(*wd)
-	log.Printf("Deleted successful '%s'", date)
+	jww.FEEDBACK.Printf("Deleted successful '%s'", date)
 	return nil
 }
 

@@ -3,7 +3,7 @@ package cmd
 
 import (
 	"github.com/mitchellh/go-homedir"
-	"log"
+	jww "github.com/spf13/jwalterweatherman"
 	"path/filepath"
 )
 
@@ -11,7 +11,7 @@ import (
 func DbPath() string {
 	home, err := homedir.Dir()
 	if err != nil {
-		log.Fatal(err)
+		jww.ERROR.Fatal(err)
 	}
 	return filepath.Join(home, ".timed.db")
 }

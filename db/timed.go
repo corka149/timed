@@ -2,8 +2,9 @@ package db
 
 import (
 	"fmt"
-	"log"
 	"time"
+
+	jww "github.com/spf13/jwalterweatherman"
 )
 
 // WorkingDay represents one day of work
@@ -27,12 +28,12 @@ func (wd *WorkingDay) String() string {
 func Convert(id int, day string, brk int, start string, end string, note string) WorkingDay {
 	d, err := time.Parse("2006-01-02", day)
 	if err != nil {
-		log.Fatal(err)
+		jww.ERROR.Fatal(err)
 	}
 
 	s, err := time.Parse("15:04:05.000000", start)
 	if err != nil {
-		log.Fatal(err)
+		jww.ERROR.Fatal(err)
 	}
 
 	e, err := time.Parse("15:04:05.000000", end)

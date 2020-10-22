@@ -25,12 +25,12 @@ package cmd
 
 import (
 	"fmt"
-	"log"
 	"strings"
 	"time"
 
 	"github.com/corka149/timed/db"
 	"github.com/spf13/cobra"
+	jww "github.com/spf13/jwalterweatherman"
 )
 
 // ===================
@@ -59,7 +59,7 @@ var (
 			repo.Close()
 
 			if err != nil {
-				log.Fatal(err)
+				jww.ERROR.Fatal(err)
 			}
 		},
 	}
@@ -83,7 +83,7 @@ type RootCmdProps struct {
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		log.Fatal(err)
+		jww.ERROR.Fatal(err)
 	}
 }
 
@@ -147,7 +147,7 @@ func runRoot(props RootCmdProps, repo db.Repo) error {
 	}
 
 	report := createReport(repo)
-	log.Print(report)
+	jww.FEEDBACK.Print(report)
 	return nil
 }
 
@@ -160,7 +160,7 @@ func createReport(repo db.Repo) string {
 		diff := wd.End.Sub(wd.Start)
 		workedToday := fmt.Sprintf("💪 Worked today %s\n", diff)
 		if _, err := b.WriteString(workedToday); err != nil {
-			log.Fatal(err)
+			jww.ERROR.Fatal(err)
 		}
 	}
 
