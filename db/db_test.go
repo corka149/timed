@@ -7,10 +7,10 @@ import (
 	"time"
 )
 
-const dbName = "test_db"
+const dbName = "test.db"
 
 func init() {
-	os.Remove("test_db")
+	os.Remove(dbName)
 }
 
 func TestInsertAndLoad(t *testing.T) {
@@ -126,7 +126,7 @@ func TestSqlRepo_Overtime(t *testing.T) {
 }
 
 func createDb(t *testing.T, path string) {
-	dbP, err := sql.Open("sqlite", path)
+	dbP, err := sql.Open("sqlite3", path)
 	if err != nil {
 		t.Fatal(err)
 	}

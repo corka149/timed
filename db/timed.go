@@ -26,7 +26,7 @@ func (wd *WorkingDay) String() string {
 
 // Convert creates a new WorkingDay from query
 func Convert(id int, day string, brk int, start string, end string, note string) WorkingDay {
-	d, err := time.Parse("2006-01-02", day)
+	d, err := time.Parse("2006-01-02T03:04:05Z", day)
 	if err != nil {
 		jww.ERROR.Fatal(err)
 	}

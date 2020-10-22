@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"time"
 
+	_ "github.com/mattn/go-sqlite3"
 	jww "github.com/spf13/jwalterweatherman"
-	_ "modernc.org/sqlite" // Import as driver
 )
 
 // ==============
@@ -19,7 +19,7 @@ func NewRepo(dbPath string) *SqlRepo {
 }
 
 func openDb(dbPath string) *sql.DB {
-	db, err := sql.Open("sqlite", dbPath)
+	db, err := sql.Open("sqlite3", dbPath)
 	if err != nil {
 		jww.ERROR.Fatal(err)
 	}
