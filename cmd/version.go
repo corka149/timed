@@ -32,7 +32,7 @@ var (
 	major     = 3
 	minor     = 0
 	patch     = 0
-	buildHash = ""
+	buildHash = "807b5c11c6b74884d241f8c1b2498dc0aa7a1208"
 )
 
 // versionCmd represents the version command
