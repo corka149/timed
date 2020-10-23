@@ -87,7 +87,7 @@ func TestCreateReport(t *testing.T) {
 	wd := db.WorkingDay{Day: start, Start: start, End: end, Brk: 30, Note: "With space"}
 	repo.Insert(wd)
 	report = createReport(&repo)
-	if report != "💪 Worked today 8h30m0s\n⏰  Total overtime 2.05 hours" {
+	if report != "💪 Worked today 8.00hrs\n⏰  Total overtime 2.05 hours" {
 		t.Fatalf("Did not create report correctly overtime or worked hours today: Got '%s'", report)
 	}
 }

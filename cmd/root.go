@@ -158,7 +158,8 @@ func createReport(repo db.Repo) string {
 	t := time.Now()
 	if wd := repo.LoadDay(&t); wd != nil {
 		diff := wd.End.Sub(wd.Start)
-		workedToday := fmt.Sprintf("💪 Worked today %s\n", diff)
+		hrs := (diff.Minutes() - float64(wd.Brk)) / 60.0
+		workedToday := fmt.Sprintf("💪 Worked today %.2fhrs\n", hrs)
 		if _, err := b.WriteString(workedToday); err != nil {
 			jww.ERROR.Fatal(err)
 		}
