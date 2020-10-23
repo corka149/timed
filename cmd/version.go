@@ -31,8 +31,8 @@ import (
 var (
 	major     = 3
 	minor     = 0
-	patch     = 1
-	buildHash = "7918e61a1dbf4008d6c5d0527006c7b6778eca3e"
+	patch     = 2
+	buildHash = "d22b5c6539793b3da5b68034da0b31c4bd135b67"
 )
 
 // versionCmd represents the version command
