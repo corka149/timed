@@ -132,4 +132,4 @@ modules.xml
 # Custom
 *.db
 /timed
-/build
+timed-*
