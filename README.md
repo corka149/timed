@@ -37,3 +37,15 @@ Use "timed [command] --help" for more information about a command.
 
 ## Data
 "$HOME/.timed.db" stores the timed data.
+
+## Migrating to 3.0.3
+
+Back up old db and created timed commands via 
+```sql
+SELECT 'timed -d ' || day
+           || ' -s ' || strftime('%H:%M', start)
+           || ' -e ' || strftime('%H:%M', end)
+           || ' -b ' || break_in_m
+           || ' -n "' || note || '"'
+FROM working_days;
+```
