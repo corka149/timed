@@ -1,11 +1,11 @@
 package db
 
 import (
-	"database/sql"
 	"time"
 
-	_ "github.com/mattn/go-sqlite3"
 	jww "github.com/spf13/jwalterweatherman"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
 // ==============
@@ -14,16 +14,17 @@ import (
 
 // NewRepo creates and initiates a new repo
 func NewRepo(dbPath string) *SqlRepo {
-	db := openDb(dbPath)
-	return &SqlRepo{db}
-}
-
-func openDb(dbPath string) *sql.DB {
-	db, err := sql.Open("sqlite3", dbPath)
+	db, err := gorm.Open(sqlite.Open(dbPath+"&parseTime=True"), &gorm.Config{})
 	if err != nil {
 		jww.ERROR.Fatal(err)
 	}
-	return db
+
+	err = db.AutoMigrate(&WorkingDay{})
+	if err != nil {
+		jww.ERROR.Fatal(err)
+	}
+
+	return &SqlRepo{db}
 }
 
 // ================
@@ -41,116 +42,77 @@ type Repo interface {
 
 // SqlRepo represents a DB access layer
 type SqlRepo struct {
-	db *sql.DB
+	db *gorm.DB
 }
 
 // LoadDay finds the matching working time entry for a specific date.
 func (r *SqlRepo) LoadDay(d *time.Time) *WorkingDay {
 
-	row, err := r.db.Query("SELECT id, day, break_in_m, start, end, note FROM working_days WHERE day=?", d.Format("2006-01-02"))
-	if err != nil {
-		jww.ERROR.Fatal(err)
+	wd := &WorkingDay{}
+	s, e := startEnd(d)
+	tx := r.db.Where("day BETWEEN ? and ?", s, e).First(&wd)
+
+	if tx.Error != nil {
+		jww.ERROR.Print(tx.Error)
+		return nil
 	}
-	defer closeRow(row)
-
-	if row.Next() {
-		var id int
-		var day string
-		var brk int
-		var start string
-		var end string
-		var note string
-
-		err := row.Scan(&id, &day, &brk, &start, &end, &note)
-
-		if err != nil {
-			jww.ERROR.Fatal(err)
-		}
-
-		wd := Convert(id, day, brk, start, end, note)
-		return &wd
-	}
-
-	return nil
+	return wd
 }
 
 // UpdateDay updates the values of a working day in the database
 func (r *SqlRepo) UpdateDay(wd WorkingDay) {
 
-	update := "UPDATE working_days SET break_in_m=?, start=?, end=?, note=? WHERE id=?"
-	start := wd.Start.Format("15:04:05.000000")
-	end := wd.End.Format("15:04:05.000000")
-	_, err := r.db.Exec(update, wd.Brk, start, end, wd.Note, wd.ID)
-	if err != nil {
-		jww.ERROR.Fatal(err)
+	tx := r.db.Save(&wd)
+	if tx.Error != nil {
+		jww.ERROR.Fatal(tx.Error)
 	}
 }
 
 // Insert adds a new working day to the database
 func (r *SqlRepo) Insert(wd WorkingDay) {
 
-	insert := "INSERT INTO working_days (day, break_in_m, start, end, note) VALUES (?, ?, ?, ?, ?)"
-	day := wd.Day.Format("2006-01-02")
-	start := wd.Start.Format("15:04:05.000000")
-	end := wd.End.Format("15:04:05.000000")
-	_, err := r.db.Exec(insert, day, wd.Brk, start, end, wd.Note)
-	if err != nil {
-		jww.ERROR.Fatal(err)
+	tx := r.db.Create(&wd)
+	if tx.Error != nil {
+		jww.ERROR.Fatal(tx.Error)
 	}
 }
 
 // Delete removes a working day from the database
 func (r *SqlRepo) Delete(wd WorkingDay) {
+	tx := r.db.Delete(&wd, wd.ID)
+	if tx.Error != nil {
+		jww.ERROR.Fatal(tx.Error)
+	}
 
-	del := "DELETE FROM working_days WHERE id=?"
-	result, err := r.db.Exec(del, wd.ID)
-	if err != nil {
-		jww.ERROR.Fatal(err)
-	}
-	rows, err := result.RowsAffected()
-	if err != nil {
-		jww.ERROR.Fatal(err)
-	}
+	rows := tx.RowsAffected
 	if rows != 1 {
-		jww.ERROR.Fatalf("Delete %d rows", rows)
+		jww.ERROR.Fatalf("Delete %d rows - expected 1 row", rows)
 	}
 }
 
 // Overtime calculates the overtime in minutes
 func (r *SqlRepo) Overtime() int {
+
+	var overtime = -1
 	overtStmt := `
 	SELECT SUM((strftime('%s', end) - strftime('%s', start) - break_in_m * 60) / 60)
-	 - (COUNT(*) * 8 * 60) AS overtime_in_min
+	 - (COUNT(*) * 8 * 60) AS overtime
 	FROM working_days;
 	`
 
-	row, err := r.db.Query(overtStmt)
-	if err != nil {
-		jww.ERROR.Fatal(err)
+	tx := r.db.Raw(overtStmt).Scan(&overtime)
+	if tx.Error != nil {
+		jww.ERROR.Fatal(tx.Error)
 	}
-	defer closeRow(row)
 
-	if !row.Next() {
+	if overtime == -1 {
 		jww.ERROR.Fatal("Could not calculate overtime")
 	}
-	var overTime int
-	if err = row.Scan(&overTime); err != nil {
-		jww.ERROR.Fatal(err)
-	}
-	return overTime
+	return overtime
 }
 
-// Close shutdown the DB connection
-func (r *SqlRepo) Close() {
-	err := r.db.Close()
-	if err != nil {
-		jww.ERROR.Fatal(err)
-	}
-}
-
-func closeRow(row *sql.Rows) {
-	err := row.Close()
-	if err != nil {
-		jww.ERROR.Fatal(err)
-	}
+func startEnd(d *time.Time) (time.Time, time.Time) {
+	s := time.Date(d.Year(), d.Month(), d.Day(), 0, 0, 0, 0, time.Now().Location())
+	e := time.Date(d.Year(), d.Month(), d.Day(), 23, 59, 59, 0, time.Now().Location())
+	return s, e
 }

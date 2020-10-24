@@ -45,7 +45,6 @@ var (
 		Run: func(cmd *cobra.Command, args []string) {
 			repo := db.NewRepo(DbPath())
 			err := runDelete(args[0], repo)
-			repo.Close()
 
 			if err != nil {
 				jww.ERROR.Fatal(err)

@@ -1,7 +1,6 @@
 package db
 
 import (
-	"database/sql"
 	"os"
 	"testing"
 	"time"
@@ -10,16 +9,14 @@ import (
 const dbName = "test.db"
 
 func init() {
-	os.Remove(dbName)
+	os.Remove(dbName + "&parseTime=True")
 }
 
 func TestInsertAndLoad(t *testing.T) {
 
-	createDb(t, dbName)
-	defer os.Remove(dbName)
+	defer os.Remove(dbName + "&parseTime=True")
 
 	repo := NewRepo(dbName)
-	defer repo.Close()
 
 	start := time.Date(2020, 10, 8, 7, 50, 00, 000, time.Now().Location())
 	end := time.Date(2020, 10, 8, 16, 20, 00, 000, time.Now().Location())
@@ -46,11 +43,9 @@ func TestInsertAndLoad(t *testing.T) {
 
 func TestUpdateAndLoad(t *testing.T) {
 
-	createDb(t, dbName)
-	defer os.Remove(dbName)
+	defer os.Remove(dbName + "&parseTime=True")
 
 	repo := NewRepo(dbName)
-	defer repo.Close()
 
 	start := time.Date(2018, 10, 8, 7, 50, 00, 000, time.Now().Location())
 	end := time.Date(2018, 10, 8, 16, 20, 00, 000, time.Now().Location())
@@ -78,11 +73,9 @@ func TestUpdateAndLoad(t *testing.T) {
 
 func TestDelete(t *testing.T) {
 
-	createDb(t, dbName)
-	defer os.Remove(dbName)
+	defer os.Remove(dbName + "&parseTime=True")
 
 	repo := NewRepo(dbName)
-	defer repo.Close()
 
 	start := time.Date(2020, 10, 8, 7, 50, 00, 000, time.Now().Location())
 	end := time.Date(2020, 10, 8, 16, 20, 00, 000, time.Now().Location())
@@ -107,11 +100,9 @@ func TestDelete(t *testing.T) {
 
 func TestSqlRepo_Overtime(t *testing.T) {
 
-	createDb(t, dbName)
-	defer os.Remove(dbName)
+	defer os.Remove(dbName + "&parseTime=True")
 
 	repo := NewRepo(dbName)
-	defer repo.Close()
 
 	start := time.Date(2020, 10, 8, 7, 50, 00, 000, time.Now().Location())
 	end := time.Date(2020, 10, 8, 16, 50, 00, 000, time.Now().Location())
@@ -123,24 +114,4 @@ func TestSqlRepo_Overtime(t *testing.T) {
 	if overtime != 30 {
 		t.Fatalf("Expected '%d' but got '%d'", 30, overtime)
 	}
-}
-
-func createDb(t *testing.T, path string) {
-	dbP, err := sql.Open("sqlite3", path)
-	if err != nil {
-		t.Fatal(err)
-	}
-	createTbl := `
-	create table working_days
-	(
-		id INTEGER not null primary key,
-		day DATE not null unique,
-		break_in_m INTEGER not null,
-		start TIME not null,
-		end TIME not null,
-		note VARCHAR(100) not null
-	);
-	`
-	dbP.Exec(createTbl)
-	dbP.Close()
 }
