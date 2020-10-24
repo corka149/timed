@@ -20,17 +20,17 @@ func (r *FakeRepo) LoadDay(d *time.Time) *db.WorkingDay {
 }
 
 func (r *FakeRepo) UpdateDay(wd db.WorkingDay) {
-	date := wd.Day.Format("2006-01-02")
+	date := wd.Start.Format("2006-01-02")
 	r.data[date] = wd
 }
 
 func (r *FakeRepo) Insert(wd db.WorkingDay) {
-	date := wd.Day.Format("2006-01-02")
+	date := wd.Start.Format("2006-01-02")
 	r.data[date] = wd
 }
 
 func (r FakeRepo) Delete(wd db.WorkingDay) {
-	date := wd.Day.Format("2006-01-02")
+	date := wd.Start.Format("2006-01-02")
 	delete(r.data, date)
 }
 

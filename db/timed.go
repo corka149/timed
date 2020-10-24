@@ -10,10 +10,8 @@ import (
 type WorkingDay struct {
 	gorm.Model
 
-	Day time.Time `gorm:"type:DATE"`
-
-	Start time.Time `gorm:"type:TIME"`
-	End   time.Time `gorm:"type:TIME"`
+	Start time.Time
+	End   time.Time
 
 	Brk  int `gorm:"column:break_in_m"`
 	Note string

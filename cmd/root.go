@@ -112,6 +112,8 @@ func runRoot(props RootCmdProps, repo db.Repo) error {
 	}
 
 	if wd := repo.LoadDay(&d); wd != nil {
+		s, e = mergeTimes(d, s, e)
+
 		// Update
 		if props.start != "" && s != wd.Start {
 			wd.Start = s
@@ -140,7 +142,8 @@ func runRoot(props RootCmdProps, repo db.Repo) error {
 			b = props.brk
 		}
 
-		newWd := db.WorkingDay{Day: d, Start: s, End: e, Brk: b, Note: props.note}
+		s, e = mergeTimes(d, s, e)
+		newWd := db.WorkingDay{Start: s, End: e, Brk: b, Note: props.note}
 
 		repo.Insert(newWd)
 	}
@@ -171,6 +174,20 @@ func createReport(repo db.Repo) string {
 	b.WriteString(oStr)
 
 	return b.String()
+}
+
+func mergeTimes(day time.Time, start time.Time, end time.Time) (mStart time.Time, mEnd time.Time) {
+
+	year := day.Year()
+	month := day.Month()
+	dy := day.Day()
+
+	loc := day.Location()
+
+	mStart = time.Date(year, month, dy, start.Hour(), start.Minute(), start.Second(), start.Nanosecond(), loc)
+	mEnd = time.Date(year, month, dy, end.Hour(), end.Minute(), end.Second(), end.Nanosecond(), loc)
+
+	return
 }
 
 func init() {

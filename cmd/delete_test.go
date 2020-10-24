@@ -12,7 +12,7 @@ func TestRunDelete(t *testing.T) {
 
 	start := time.Date(2018, 10, 8, 7, 50, 00, 000, time.Now().Location())
 	end := time.Date(2018, 10, 8, 16, 20, 00, 000, time.Now().Location())
-	wd := db.WorkingDay{Day: start, Start: start, End: end, Brk: 30, Note: "With space"}
+	wd := db.WorkingDay{Start: start, End: end, Brk: 30, Note: "With space"}
 
 	repo.Insert(wd)
 
@@ -21,7 +21,7 @@ func TestRunDelete(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	wdFromDb := repo.LoadDay(&wd.Day)
+	wdFromDb := repo.LoadDay(&wd.Start)
 
 	if wdFromDb != nil {
 		t.Fatal("runDelete" +

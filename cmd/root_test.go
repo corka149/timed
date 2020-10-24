@@ -21,7 +21,7 @@ func TestRunRoot(t *testing.T) {
 	if wd == nil {
 		t.Fatal("Cmd did not create date")
 	}
-	if wd.Day.Year() != 2020 || wd.Day.Month() != 8 || wd.Day.Day() != 13 || wd.Start.Hour() != 10 ||
+	if wd.Start.Year() != 2020 || wd.Start.Month() != 8 || wd.Start.Day() != 13 || wd.Start.Hour() != 10 ||
 		wd.Start.Minute() != 0 || wd.End.Hour() != 18 || wd.End.Minute() != 10 || wd.Brk != 30 || wd.Note != "Note" {
 
 		t.Fatal("Cmd did not create correctly the working day")
@@ -37,7 +37,7 @@ func TestRunRoot(t *testing.T) {
 	if wd == nil {
 		t.Fatal("Working day disappeared")
 	}
-	if wd.Day.Year() != 2020 || wd.Day.Month() != 8 || wd.Day.Day() != 13 || wd.Start.Hour() != 9 ||
+	if wd.Start.Year() != 2020 || wd.Start.Month() != 8 || wd.Start.Day() != 13 || wd.Start.Hour() != 9 ||
 		wd.Start.Minute() != 25 || wd.End.Hour() != 16 || wd.End.Minute() != 00 || wd.Brk != 40 || wd.Note != "Note!" {
 
 		t.Fatal("Cmd did not update correctly the working day")
@@ -84,7 +84,7 @@ func TestCreateReport(t *testing.T) {
 	tNow := time.Now()
 	start := time.Date(tNow.Year(), tNow.Month(), tNow.Day(), 7, 50, 00, 000, time.Now().Location())
 	end := time.Date(tNow.Year(), tNow.Month(), tNow.Day(), 16, 20, 00, 000, time.Now().Location())
-	wd := db.WorkingDay{Day: start, Start: start, End: end, Brk: 30, Note: "With space"}
+	wd := db.WorkingDay{Start: start, End: end, Brk: 30, Note: "With space"}
 	repo.Insert(wd)
 	report = createReport(&repo)
 	if report != "💪 Worked today 8.00hrs\n⏰  Total overtime 2.05 hours" {

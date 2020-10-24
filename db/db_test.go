@@ -9,18 +9,18 @@ import (
 const dbName = "test.db"
 
 func init() {
-	os.Remove(dbName + "&parseTime=True")
+	os.Remove(dbName)
 }
 
 func TestInsertAndLoad(t *testing.T) {
 
-	defer os.Remove(dbName + "&parseTime=True")
+	defer os.Remove(dbName)
 
 	repo := NewRepo(dbName)
 
 	start := time.Date(2020, 10, 8, 7, 50, 00, 000, time.Now().Location())
 	end := time.Date(2020, 10, 8, 16, 20, 00, 000, time.Now().Location())
-	wd := WorkingDay{Day: start, Start: start, End: end, Brk: 30, Note: "With space"}
+	wd := WorkingDay{Start: start, End: end, Brk: 30, Note: "With space"}
 
 	repo.Insert(wd)
 
@@ -30,7 +30,7 @@ func TestInsertAndLoad(t *testing.T) {
 		t.Error("Could not load working day from DB")
 	}
 
-	if wd.Day != wdFromDb.Day && wd.Start == wdFromDb.Start && wd.Brk == wdFromDb.Brk && wd.Note == wdFromDb.Note {
+	if wd.Start == wdFromDb.Start && wd.Brk == wdFromDb.Brk && wd.Note == wdFromDb.Note {
 		t.Error("Working days do not match")
 	}
 
@@ -43,13 +43,13 @@ func TestInsertAndLoad(t *testing.T) {
 
 func TestUpdateAndLoad(t *testing.T) {
 
-	defer os.Remove(dbName + "&parseTime=True")
+	defer os.Remove(dbName)
 
 	repo := NewRepo(dbName)
 
 	start := time.Date(2018, 10, 8, 7, 50, 00, 000, time.Now().Location())
 	end := time.Date(2018, 10, 8, 16, 20, 00, 000, time.Now().Location())
-	wd := WorkingDay{Day: start, Start: start, End: end, Brk: 30, Note: "With space"}
+	wd := WorkingDay{Start: start, End: end, Brk: 30, Note: "With space"}
 
 	repo.Insert(wd)
 
@@ -66,20 +66,20 @@ func TestUpdateAndLoad(t *testing.T) {
 		t.Error("Could not load working day from DB")
 	}
 
-	if wd.Day != wdFromDb.Day && wd.Start == wdFromDb.Start && wd.Brk == wdFromDb.Brk && wd.Note == wdFromDb.Note && wd.Brk == 45 && wd.Note == "NotSpace" {
+	if wd.Start == wdFromDb.Start && wd.Brk == wdFromDb.Brk && wd.Note == wdFromDb.Note && wd.Brk == 45 && wd.Note == "NotSpace" {
 		t.Error("Working days do not match")
 	}
 }
 
 func TestDelete(t *testing.T) {
 
-	defer os.Remove(dbName + "&parseTime=True")
+	defer os.Remove(dbName)
 
 	repo := NewRepo(dbName)
 
 	start := time.Date(2020, 10, 8, 7, 50, 00, 000, time.Now().Location())
 	end := time.Date(2020, 10, 8, 16, 20, 00, 000, time.Now().Location())
-	wd := WorkingDay{Day: start, Start: start, End: end, Brk: 30, Note: "With space"}
+	wd := WorkingDay{Start: start, End: end, Brk: 30, Note: "With space"}
 
 	repo.Insert(wd)
 
@@ -100,13 +100,13 @@ func TestDelete(t *testing.T) {
 
 func TestSqlRepo_Overtime(t *testing.T) {
 
-	defer os.Remove(dbName + "&parseTime=True")
+	defer os.Remove(dbName)
 
 	repo := NewRepo(dbName)
 
 	start := time.Date(2020, 10, 8, 7, 50, 00, 000, time.Now().Location())
 	end := time.Date(2020, 10, 8, 16, 50, 00, 000, time.Now().Location())
-	wd := WorkingDay{Day: start, Start: start, End: end, Brk: 30, Note: "With space"}
+	wd := WorkingDay{Start: start, End: end, Brk: 30, Note: "With space"}
 
 	repo.Insert(wd)
 	overtime := repo.Overtime()

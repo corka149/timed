@@ -1,6 +1,7 @@
 package db
 
 import (
+	"gorm.io/gorm/logger"
 	"time"
 
 	jww "github.com/spf13/jwalterweatherman"
@@ -14,7 +15,9 @@ import (
 
 // NewRepo creates and initiates a new repo
 func NewRepo(dbPath string) *SqlRepo {
-	db, err := gorm.Open(sqlite.Open(dbPath+"&parseTime=True"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open(dbPath), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Silent),
+	})
 	if err != nil {
 		jww.ERROR.Fatal(err)
 	}
@@ -50,10 +53,10 @@ func (r *SqlRepo) LoadDay(d *time.Time) *WorkingDay {
 
 	wd := &WorkingDay{}
 	s, e := startEnd(d)
-	tx := r.db.Where("day BETWEEN ? and ?", s, e).First(&wd)
+	tx := r.db.Where("start BETWEEN ? and ?", s, e).First(&wd)
 
 	if tx.Error != nil {
-		jww.ERROR.Print(tx.Error)
+		jww.DEBUG.Printf("Could not load working day '%s': %s", d, tx.Error)
 		return nil
 	}
 	return wd
@@ -97,7 +100,7 @@ func (r *SqlRepo) Overtime() int {
 	overtStmt := `
 	SELECT SUM((strftime('%s', end) - strftime('%s', start) - break_in_m * 60) / 60)
 	 - (COUNT(*) * 8 * 60) AS overtime
-	FROM working_days;
+	FROM working_days WHERE deleted_at IS NULL;
 	`
 
 	tx := r.db.Raw(overtStmt).Scan(&overtime)
