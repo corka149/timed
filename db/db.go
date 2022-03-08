@@ -41,6 +41,7 @@ type Repo interface {
 	UpdateDay(wd WorkingDay)
 	Delete(wd WorkingDay)
 	Overtime() int
+	ListRange(start *time.Time, end *time.Time) ([]WorkingDay, error)
 }
 
 // SqlRepo represents a DB access layer
@@ -112,6 +113,18 @@ func (r *SqlRepo) Overtime() int {
 		jww.ERROR.Fatal("Could not calculate overtime")
 	}
 	return overtime
+}
+
+func (r *SqlRepo) ListRange(start *time.Time, end *time.Time) ([]WorkingDay, error) {
+	var workingDays []WorkingDay
+
+	tx := r.db.Where("start BETWEEN ? and ?", start, end).Find(&workingDays)
+
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+
+	return workingDays, nil
 }
 
 func startEnd(d *time.Time) (time.Time, time.Time) {
