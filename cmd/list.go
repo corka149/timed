@@ -40,6 +40,7 @@ var (
 	listCmd = &cobra.Command{
 		Use:   "list",
 		Short: "List working days",
+		Long:  "List working days for a given range. By default it looks 30 days back",
 		Run: func(cmd *cobra.Command, args []string) {
 			repo := db.NewRepo(DbPath())
 
@@ -66,6 +67,11 @@ type ListCmdProps struct {
 func runList(props ListCmdProps, repo db.Repo) error {
 	start, err := parseDateOrDefault(props.startDate)
 
+	if props.startDate == "" {
+		defaultStart := start.Add(-1 * time.Hour * 24 * 30)
+		start = &defaultStart
+	}
+
 	if err != nil {
 		return err
 	}
@@ -76,7 +82,15 @@ func runList(props ListCmdProps, repo db.Repo) error {
 		return err
 	}
 
-	repo.ListRange(start, end)
+	workingDays, err := repo.ListRange(start, end)
+
+	if err != nil {
+		return err
+	}
+
+	for _, day := range workingDays {
+		jww.FEEDBACK.Printf(day.String())
+	}
 
 	return nil
 }
@@ -92,11 +106,11 @@ func parseDateOrDefault(dateStr string) (*time.Time, error) {
 		date = time.Now()
 	}
 
-	return &date, err
+	return &date, nil
 }
 
 func init() {
 	rootCmd.AddCommand(listCmd)
 	listCmd.Flags().StringVarP(&listCmdProps.startDate, "start", "s", "", `Start date of selection. Format: "yyyy-mm-dd" -> E.g. 2019-03-28. (default: today)`)
-	listCmd.Flags().StringVarP(&listCmdProps.endDate, "start", "e", "", `End date of selection. Format: "yyyy-mm-dd" -> E.g. 2019-03-28. (default: today)`)
+	listCmd.Flags().StringVarP(&listCmdProps.endDate, "end", "e", "", `End date of selection. Format: "yyyy-mm-dd" -> E.g. 2019-03-28. (default: today)`)
 }
