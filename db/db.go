@@ -118,7 +118,7 @@ func (r *SqlRepo) Overtime() int {
 func (r *SqlRepo) ListRange(start *time.Time, end *time.Time) ([]WorkingDay, error) {
 	var workingDays []WorkingDay
 
-	tx := r.db.Where("start BETWEEN ? and ?", start, end).Find(&workingDays)
+	tx := r.db.Where("start BETWEEN ? and ?", start, end).Order("start DESC").Find(&workingDays)
 
 	if tx.Error != nil {
 		return nil, tx.Error
