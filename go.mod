@@ -3,6 +3,7 @@ module github.com/corka149/timed
 go 1.15
 
 require (
+	github.com/crazy-max/xgo v0.11.0 // indirect
 	github.com/jedib0t/go-pretty/v6 v6.2.7
 	github.com/mattn/go-sqlite3 v1.14.4 // indirect
 	github.com/mitchellh/go-homedir v1.1.0
