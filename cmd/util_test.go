@@ -37,3 +37,15 @@ func (r FakeRepo) Delete(wd db.WorkingDay) {
 func (r FakeRepo) Overtime() int {
 	return 123
 }
+
+func (r FakeRepo) ListRange(start *time.Time, end *time.Time) ([]db.WorkingDay, error) {
+	inRange := make([]db.WorkingDay, 0)
+
+	for _, wd := range r.data {
+		if wd.Start.After(*start) && wd.End.Before(*end) {
+			inRange = append(inRange, wd)
+		}
+	}
+
+	return inRange, nil
+}

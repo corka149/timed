@@ -47,7 +47,7 @@ var (
 		Run: func(cmd *cobra.Command, args []string) {
 			repo := db.NewRepo(DbPath())
 
-			if err := runList(listCmdProps, repo); err != nil {
+			if err := runList(listCmdProps, os.Stdout, repo); err != nil {
 				jww.ERROR.Fatal(err)
 			}
 		},
@@ -67,7 +67,7 @@ type ListCmdProps struct {
 // ===== PRIVATE =====
 // ===================
 
-func runList(props ListCmdProps, repo db.Repo) error {
+func runList(props ListCmdProps, output io.Writer, repo db.Repo) error {
 	start, err := parseDateOrDefault(props.startDate)
 
 	if props.startDate == "" {
@@ -91,7 +91,7 @@ func runList(props ListCmdProps, repo db.Repo) error {
 		return err
 	}
 
-	renderTable(workingDays, os.Stdout)
+	renderTable(workingDays, output)
 
 	return nil
 }
