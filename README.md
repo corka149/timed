@@ -7,13 +7,13 @@ Manages my working times.
 ## Usage
 ```
 The timed cli helps to managing working times.
-	  _________
-	 /   12    \
-	|     |     |
-	|9    |    3|
-	|      \    |
-	|           |
-	 \____6____/
+          _________
+         /   12    \
+        |     |     |
+        |9    |    3|
+        |      \    |
+        |           |
+         \____6____/
 
 Usage:
   timed [flags]
@@ -22,6 +22,8 @@ Usage:
 Available Commands:
   delete      Delete by the provided DATE
   help        Help about any command
+  list        List working days
+  version     Prints version of timed and quit
 
 Flags:
   -b, --break int      Takes the duration of the break in minutes. (default 0min) (default -1)
