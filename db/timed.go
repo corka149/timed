@@ -2,6 +2,7 @@ package db
 
 import (
 	"fmt"
+	"github.com/jedib0t/go-pretty/v6/table"
 	"gorm.io/gorm"
 	"time"
 )
@@ -19,4 +20,10 @@ type WorkingDay struct {
 
 func (wd *WorkingDay) String() string {
 	return fmt.Sprintf("%d: Worked from %s to %s taking %d min break (note: %s)", wd.ID, wd.Start, wd.End, wd.Brk, wd.Note)
+}
+
+func (wd *WorkingDay) ToRow() table.Row {
+	return table.Row{
+		wd.Start, wd.End, wd.Brk, wd.Note,
+	}
 }

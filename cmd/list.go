@@ -25,8 +25,11 @@ package cmd
 
 import (
 	"github.com/corka149/timed/db"
+	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
+	"io"
+	"os"
 	"time"
 )
 
@@ -88,9 +91,7 @@ func runList(props ListCmdProps, repo db.Repo) error {
 		return err
 	}
 
-	for _, day := range workingDays {
-		jww.FEEDBACK.Printf(day.String())
-	}
+	renderTable(workingDays, os.Stdout)
 
 	return nil
 }
@@ -107,6 +108,20 @@ func parseDateOrDefault(dateStr string) (*time.Time, error) {
 	}
 
 	return &date, nil
+}
+
+func renderTable(workingDays []db.WorkingDay, output io.Writer) {
+	t := table.NewWriter()
+	t.SetOutputMirror(output)
+
+	header := table.Row{"Start", "End", "Break", "Note"}
+	t.AppendHeader(header)
+
+	for _, wd := range workingDays {
+		t.AppendRow(wd.ToRow())
+	}
+
+	t.Render()
 }
 
 func init() {
