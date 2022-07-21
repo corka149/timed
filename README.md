@@ -40,14 +40,28 @@ Use "timed [command] --help" for more information about a command.
 ## Data
 "$HOME/.timed.db" stores the timed data.
 
-## Migrating to 3.0.3
+## Build `timed`
 
-Back up old db and created timed commands via 
-```sql
-SELECT 'timed -d ' || day
-           || ' -s ' || strftime('%H:%M', start)
-           || ' -e ' || strftime('%H:%M', end)
-           || ' -b ' || break_in_m
-           || ' -n "' || note || '"'
-FROM working_days;
+_Requirements:_
+
+- git
+- Go ([see here](https://go.dev/))
+
+Only for cross-compilation:
+
+- make
+- Docker
+
+_Build it:_
+
+```sh
+git clone -b v3.1.0 --single-branch git@github.com:corka149/timed.git
+
+# Only for current machine
+go build
+
+# Cross compilation
+make
 ```
+
+Enjoy your `timed` binary at the project directory.
